@@ -1,0 +1,788 @@
+// Record Book JavaScript
+let leagueScoreData = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    initRecordBook();
+});
+
+function initRecordBook() {
+    // Initialize tab navigation
+    initTabNavigation();
+    
+    // Load league data
+    loadLeagueData();
+}
+
+function initTabNavigation() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+            
+            // Remove active class from all tabs
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanels.forEach(panel => panel.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            button.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+        });
+    });
+}
+
+function loadLeagueData() {
+    LeagueDb.scoreRows()
+        .then(data => {
+            leagueScoreData = data;
+            processLeagueRecords();
+        })
+        .catch(error => {
+            console.error('Error loading league data:', error);
+            showError();
+        });
+}
+
+function processLeagueRecords() {
+    const teamStats = {};
+    const seasonStats = {};
+    const weeklyPerformances = {};
+    
+    // Process each game
+    leagueScoreData.forEach(game => {
+        if (!game["Team"] || !game["Opponent"]) return;
+        
+        const team = game["Team"];
+        const opponent = game["Opponent"];
+        const teamScore = parseFloat(game["Team Score"]);
+        const opponentScore = parseFloat(game["Opponent Score"]);
+        const season = game["Season"];
+        const week = game["Week"];
+        const seasonPeriod = game["Season Period"] || "Regular";
+        
+        if (isNaN(teamScore) || isNaN(opponentScore)) return;
+        
+        // Initialize team stats
+        if (!teamStats[team]) {
+            teamStats[team] = {
+                wins: 0,
+                losses: 0,
+                winStreak: 0,
+                currentWinStreak: 0,
+                losingStreak: 0,
+                currentLosingStreak: 0,
+                streak150Plus: 0,
+                currentStreak150Plus: 0,
+                streakUnder100: 0,
+                currentStreakUnder100: 0,
+                weeklyTopScores: 0,
+                weeklyTop3Scores: 0,
+                weeklyWorstScores: 0,
+                weeklyBottom3Scores: 0,
+                championships: 0,
+                chumpionships: 0,
+                championshipAppearances: 0,
+                chumpionshipAppearances: 0,
+                gameScores: []
+            };
+        }
+        
+        // Initialize season stats
+        if (!seasonStats[season]) {
+            seasonStats[season] = {};
+        }
+        if (!seasonStats[season][team]) {
+            seasonStats[season][team] = {
+                wins: 0,
+                losses: 0,
+                pointsFor: 0,
+                pointsAgainst: 0
+            };
+        }
+        
+        // Record the game
+        teamStats[team].gameScores.push({
+            score: teamScore,
+            season: season,
+            week: week,
+            opponent: opponent,
+            opponentScore: opponentScore
+        });
+        
+        // Update season stats
+        seasonStats[season][team].pointsFor += teamScore;
+        seasonStats[season][team].pointsAgainst += opponentScore;
+        
+        // Determine win/loss
+        const isWin = teamScore > opponentScore;
+        if (isWin) {
+            teamStats[team].wins++;
+            seasonStats[season][team].wins++;
+            teamStats[team].currentWinStreak++;
+            teamStats[team].currentLosingStreak = 0;
+            teamStats[team].winStreak = Math.max(teamStats[team].winStreak, teamStats[team].currentWinStreak);
+        } else if (teamScore < opponentScore) {
+            teamStats[team].losses++;
+            seasonStats[season][team].losses++;
+            teamStats[team].currentLosingStreak++;
+            teamStats[team].currentWinStreak = 0;
+            teamStats[team].losingStreak = Math.max(teamStats[team].losingStreak, teamStats[team].currentLosingStreak);
+        }
+        
+        // Track 150+ point streak
+        if (teamScore >= 150) {
+            teamStats[team].currentStreak150Plus++;
+            teamStats[team].streak150Plus = Math.max(teamStats[team].streak150Plus, teamStats[team].currentStreak150Plus);
+        } else {
+            teamStats[team].currentStreak150Plus = 0;
+        }
+        
+        // Track under 100 point streak
+        if (teamScore < 100) {
+            teamStats[team].currentStreakUnder100++;
+            teamStats[team].streakUnder100 = Math.max(teamStats[team].streakUnder100, teamStats[team].currentStreakUnder100);
+        } else {
+            teamStats[team].currentStreakUnder100 = 0;
+        }
+        
+        // Track weekly performances
+        const weekKey = `${season}-${week}`;
+        if (!weeklyPerformances[weekKey]) {
+            weeklyPerformances[weekKey] = [];
+        }
+        weeklyPerformances[weekKey].push({ team: team, score: teamScore });
+        
+        // Track championship/chumpionship games
+        if (seasonPeriod === "Championship") {
+            teamStats[team].championshipAppearances++;
+            if (isWin) {
+                teamStats[team].championships++;
+            }
+        } else if (seasonPeriod === "Chumpionship") {
+            teamStats[team].chumpionshipAppearances++;
+            if (!isWin) {
+                teamStats[team].chumpionships++;
+            }
+        }
+    });
+    
+    // Process weekly performances for rankings
+    Object.keys(weeklyPerformances).forEach(weekKey => {
+        const weekScores = weeklyPerformances[weekKey].sort((a, b) => b.score - a.score);
+        
+        if (weekScores.length > 0) {
+            // Top score
+            teamStats[weekScores[0].team].weeklyTopScores++;
+            
+            // Top 3
+            for (let i = 0; i < Math.min(3, weekScores.length); i++) {
+                teamStats[weekScores[i].team].weeklyTop3Scores++;
+            }
+            
+            // Worst score
+            teamStats[weekScores[weekScores.length - 1].team].weeklyWorstScores++;
+            
+            // Bottom 3
+            for (let i = Math.max(0, weekScores.length - 3); i < weekScores.length; i++) {
+                teamStats[weekScores[i].team].weeklyBottom3Scores++;
+            }
+        }
+    });
+    
+    // Calculate and display records
+    calculateWinLossRecords(teamStats, seasonStats);
+    calculateWinPercentageRecords(teamStats, seasonStats);
+    calculateWeeklyPerformanceRecords(teamStats);
+    calculateChampionshipRecords(teamStats);
+    calculateStreakRecords(teamStats);
+    calculateSingleGameRecords();
+    calculateSingleSeasonRecords(seasonStats);
+    calculatePlayerRecords();
+    calculateTransactionAndLuckRecords();
+}
+
+function calculateWinLossRecords(teamStats, seasonStats) {
+    // Most Career Wins
+    const mostWinsOverall = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.wins }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostWinsOverall', mostWinsOverall);
+    
+    // Most Single-Season Wins
+    const mostWinsSeason = [];
+    Object.entries(seasonStats).forEach(([season, teams]) => {
+        Object.entries(teams).forEach(([team, stats]) => {
+            mostWinsSeason.push({ 
+                team: `${team} (${season})`, 
+                value: stats.wins 
+            });
+        });
+    });
+    mostWinsSeason.sort((a, b) => b.value - a.value);
+    updateRecord('mostWinsSeason', mostWinsSeason.slice(0, 3));
+    
+    // Most Career Losses
+    const mostLossesOverall = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.losses }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostLossesOverall', mostLossesOverall);
+    
+    // Most Single-Season Losses
+    const mostLossesSeason = [];
+    Object.entries(seasonStats).forEach(([season, teams]) => {
+        Object.entries(teams).forEach(([team, stats]) => {
+            mostLossesSeason.push({ 
+                team: `${team} (${season})`, 
+                value: stats.losses 
+            });
+        });
+    });
+    mostLossesSeason.sort((a, b) => b.value - a.value);
+    updateRecord('mostLossesSeason', mostLossesSeason.slice(0, 3));
+}
+
+function calculateWinPercentageRecords(teamStats, seasonStats) {
+    // Best Career Win %
+    const bestWinPctOverall = Object.entries(teamStats)
+        .filter(([team, stats]) => stats.wins + stats.losses >= 10) // Minimum games
+        .map(([team, stats]) => ({
+            team,
+            value: (stats.wins / (stats.wins + stats.losses)).toFixed(3).replace(/^0(?=\.)/, '')
+        }))
+        .sort((a, b) => parseFloat(b.value) - parseFloat(a.value))
+        .slice(0, 3);
+    updateRecord('bestWinPctOverall', bestWinPctOverall);
+    
+    // Best Single-Season Win %
+    const bestWinPctSeason = [];
+    Object.entries(seasonStats).forEach(([season, teams]) => {
+        Object.entries(teams).forEach(([team, stats]) => {
+            const totalGames = stats.wins + stats.losses;
+            if (totalGames >= 10) {
+                bestWinPctSeason.push({
+                    team: `${team} (${season})`,
+                    value: (stats.wins / totalGames).toFixed(3).replace(/^0(?=\.)/, '')
+                });
+            }
+        });
+    });
+    bestWinPctSeason.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
+    updateRecord('bestWinPctSeason', bestWinPctSeason.slice(0, 3));
+    
+    // Worst Career Win %
+    const worstWinPctOverall = Object.entries(teamStats)
+        .filter(([team, stats]) => stats.wins + stats.losses >= 10)
+        .map(([team, stats]) => ({
+            team,
+            value: (stats.wins / (stats.wins + stats.losses)).toFixed(3).replace(/^0(?=\.)/, '')
+        }))
+        .sort((a, b) => parseFloat(a.value) - parseFloat(b.value))
+        .slice(0, 3);
+    updateRecord('worstWinPctOverall', worstWinPctOverall);
+    
+    // Worst Single-Season Win %
+    const worstWinPctSeason = [];
+    Object.entries(seasonStats).forEach(([season, teams]) => {
+        Object.entries(teams).forEach(([team, stats]) => {
+            const totalGames = stats.wins + stats.losses;
+            if (totalGames >= 10) {
+                worstWinPctSeason.push({
+                    team: `${team} (${season})`,
+                    value: (stats.wins / totalGames).toFixed(3).replace(/^0(?=\.)/, '')
+                });
+            }
+        });
+    });
+    worstWinPctSeason.sort((a, b) => parseFloat(a.value) - parseFloat(b.value));
+    updateRecord('worstWinPctSeason', worstWinPctSeason.slice(0, 3));
+}
+
+function calculateStreakRecords(teamStats) {
+    // Longest Win Streak
+    const longestWinStreak = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.winStreak }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('longestWinStreak', longestWinStreak);
+    
+    // Longest Losing Streak
+    const longestLosingStreak = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.losingStreak }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('longestLosingStreak', longestLosingStreak);
+    
+    // Longest 150+ Point Streak
+    const longest150PlusStreak = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.streak150Plus }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('longest150PlusStreak', longest150PlusStreak);
+    
+    // Sub 100 Point Streak
+    const longestUnder100Streak = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.streakUnder100 }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('longestUnder100Streak', longestUnder100Streak);
+}
+
+function calculateWeeklyPerformanceRecords(teamStats) {
+    // Most Weekly Top Scores
+    const mostWeeklyTopScores = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.weeklyTopScores }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostWeeklyTopScores', mostWeeklyTopScores);
+    
+    // Most Weekly Top 3 Scores
+    const mostWeeklyTop3Scores = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.weeklyTop3Scores }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostWeeklyTop3Scores', mostWeeklyTop3Scores);
+    
+    // Most Weekly Worst Scores
+    const mostWeeklyWorstScores = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.weeklyWorstScores }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostWeeklyWorstScores', mostWeeklyWorstScores);
+    
+    // Most Weekly Bottom 3 Scores
+    const mostWeeklyBottom3Scores = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.weeklyBottom3Scores }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostWeeklyBottom3Scores', mostWeeklyBottom3Scores);
+}
+
+function calculateChampionshipRecords(teamStats) {
+    // Most Championships (wins in championship game)
+    const mostChampionships = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.championships }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostChampionships', mostChampionships);
+    
+    // Most Chumpionships (losses in chumpionship game)
+    const mostChumpionships = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.chumpionships }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostChumpionships', mostChumpionships);
+    
+    // Most Championship Appearances
+    const mostChampionshipAppearances = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.championshipAppearances }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostChampionshipAppearances', mostChampionshipAppearances);
+    
+    // Most Chumpionship Appearances
+    const mostChumpionshipAppearances = Object.entries(teamStats)
+        .map(([team, stats]) => ({ team, value: stats.chumpionshipAppearances }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 3);
+    updateRecord('mostChumpionshipAppearances', mostChumpionshipAppearances);
+}
+
+async function calculatePlayerRecords() {
+    try {
+        const rosterData = await LeagueDb.leagueRosterPlayers();
+        
+        // Track unique players per team
+        const teamPlayers = {};
+        const seasonPlayers = {};
+        
+        rosterData.forEach(entry => {
+            const team = entry.Team;
+            const season = entry.Season;
+            const player = entry.Player;
+            
+            if (!team || !season || !player) return;
+            
+            // Track all seasons
+            if (!teamPlayers[team]) {
+                teamPlayers[team] = new Set();
+            }
+            teamPlayers[team].add(player);
+            
+            // Track by season
+            const seasonKey = `${team}-${season}`;
+            if (!seasonPlayers[seasonKey]) {
+                seasonPlayers[seasonKey] = {
+                    team: team,
+                    season: season,
+                    players: new Set()
+                };
+            }
+            seasonPlayers[seasonKey].players.add(player);
+        });
+        
+        // The subtitles promise minimums (20 games overall, 10 in a season). That also keeps
+        // managers with a handful of games and the season in progress out of the "fewest" records.
+        const gamesByTeam = {}, gamesByTeamSeason = {};
+        leagueScoreData.forEach(g => {
+            if (!g.Team || !g.Opponent || g.Opponent.toLowerCase() === 'bye') return;
+            gamesByTeam[g.Team] = (gamesByTeam[g.Team] || 0) + 1;
+            const key = `${g.Team}-${g.Season}`;
+            gamesByTeamSeason[key] = (gamesByTeamSeason[key] || 0) + 1;
+        });
+        Object.keys(teamPlayers).forEach(team => { if ((gamesByTeam[team] || 0) < 20) delete teamPlayers[team]; });
+        Object.keys(seasonPlayers).forEach(key => { if ((gamesByTeamSeason[key] || 0) < 10) delete seasonPlayers[key]; });
+
+        // Most unique players overall (min 20 games)
+        const mostPlayersOverall = Object.entries(teamPlayers)
+            .map(([team, players]) => ({ team, value: players.size }))
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 3);
+        updateRecord('mostUniquePlayersOverall', mostPlayersOverall);
+        
+        // Fewest unique players overall (min 20 games)
+        const fewestPlayersOverall = Object.entries(teamPlayers)
+            .map(([team, players]) => ({ team, value: players.size }))
+            .sort((a, b) => a.value - b.value)
+            .slice(0, 3);
+        updateRecord('fewestUniquePlayersOverall', fewestPlayersOverall);
+        
+        // Most unique players single season (min 10 games)
+        const mostPlayersSeason = Object.values(seasonPlayers)
+            .map(entry => ({ 
+                team: `${entry.team} (${entry.season})`, 
+                value: entry.players.size 
+            }))
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 3);
+        updateRecord('mostUniquePlayersSeason', mostPlayersSeason);
+        
+        // Fewest unique players single season (min 10 games)
+        const fewestPlayersSeason = Object.values(seasonPlayers)
+            .map(entry => ({ 
+                team: `${entry.team} (${entry.season})`, 
+                value: entry.players.size 
+            }))
+            .sort((a, b) => a.value - b.value)
+            .slice(0, 3);
+        updateRecord('fewestUniquePlayersSeason', fewestPlayersSeason);
+        
+    } catch (error) {
+        console.error('Error calculating player records:', error);
+        // Set empty records if calculation fails
+        updateRecord('mostUniquePlayersOverall', []);
+        updateRecord('fewestUniquePlayersOverall', []);
+        updateRecord('mostUniquePlayersSeason', []);
+        updateRecord('fewestUniquePlayersSeason', []);
+    }
+}
+
+function calculateSingleGameRecords() {
+    const allScores = [];
+    const processedBlowouts = new Set();
+    const processedCloseGames = new Set();
+    const allBlowouts = [];
+    const allCloseGames = [];
+    
+    leagueScoreData.forEach(game => {
+        if (!game["Team"] || !game["Opponent"]) return;
+        
+        const teamScore = parseFloat(game["Team Score"]);
+        const opponentScore = parseFloat(game["Opponent Score"]);
+        const scoreDiff = Math.abs(teamScore - opponentScore);
+        const gameId = game["Game ID"];
+        
+        if (isNaN(teamScore) || isNaN(opponentScore)) return;
+        
+        // Add all individual team scores
+        allScores.push({
+            team: game["Team"],
+            value: teamScore.toFixed(2)
+        });
+        
+        // Track blowouts and close games only once per Game ID
+        if (gameId && !processedBlowouts.has(gameId)) {
+            processedBlowouts.add(gameId);
+            const winner = teamScore > opponentScore ? game["Team"] : game["Opponent"];
+            const loser = teamScore > opponentScore ? game["Opponent"] : game["Team"];
+            
+            allBlowouts.push({
+                team: `${winner} vs ${loser}`,
+                value: scoreDiff.toFixed(2)
+            });
+            
+            // Only consider games with diff < 50 for closest
+            if (scoreDiff < 50 && !processedCloseGames.has(gameId)) {
+                processedCloseGames.add(gameId);
+                allCloseGames.push({
+                    team: `${winner} vs ${loser}`,
+                    value: scoreDiff.toFixed(2)
+                });
+            }
+        }
+    });
+    
+    // Highest Score
+    allScores.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
+    updateRecord('highestScore', allScores.slice(0, 3));
+    
+    // Lowest Score
+    allScores.sort((a, b) => parseFloat(a.value) - parseFloat(b.value));
+    updateRecord('lowestScore', allScores.slice(0, 3));
+    
+    // Largest Blowout
+    allBlowouts.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
+    updateRecord('largestBlowout', allBlowouts.slice(0, 3));
+    
+    // Closest Matchup
+    allCloseGames.sort((a, b) => parseFloat(a.value) - parseFloat(b.value));
+    updateRecord('closestMatchup', allCloseGames.slice(0, 3));
+}
+
+function calculateSingleSeasonRecords(seasonStats) {
+    const pointTotals = [];
+    const pointDiffs = [];
+    
+    Object.entries(seasonStats).forEach(([season, teams]) => {
+        Object.entries(teams).forEach(([team, stats]) => {
+            if (stats.wins + stats.losses < 10) return;   // season in progress (or too few games) says nothing
+            pointTotals.push({
+                team: `${team} (${season})`,
+                value: stats.pointsFor.toFixed(2)
+            });
+            
+            const diff = stats.pointsFor - stats.pointsAgainst;
+            pointDiffs.push({
+                team: `${team} (${season})`,
+                value: diff.toFixed(2)
+            });
+        });
+    });
+    
+    // Highest Point Total
+    pointTotals.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
+    updateRecord('highestPointTotal', pointTotals.slice(0, 3));
+    
+    // Lowest Point Total
+    pointTotals.sort((a, b) => parseFloat(a.value) - parseFloat(b.value));
+    updateRecord('lowestPointTotal', pointTotals.slice(0, 3));
+    
+    // Highest Point Differential
+    pointDiffs.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
+    updateRecord('highestPointDiff', pointDiffs.slice(0, 3));
+    
+    // Lowest Point Differential
+    pointDiffs.sort((a, b) => parseFloat(a.value) - parseFloat(b.value));
+    updateRecord('lowestPointDiff', pointDiffs.slice(0, 3));
+}
+
+function updateRecord(recordName, data) {
+    const positions = ['holder', 'runner-up-1', 'runner-up-2'];
+    
+    positions.forEach((position, index) => {
+        const element = document.querySelector(`[data-record="${recordName}"][data-position="${position}"]`);
+        if (!element) return;
+        
+        const nameElement = element.querySelector('.record-name');
+        const valueElement = element.querySelector('.record-value');
+        
+        if (data[index]) {
+            nameElement.textContent = data[index].team;
+            valueElement.textContent = data[index].value;
+        } else {
+            nameElement.textContent = '--';
+            valueElement.textContent = '--';
+        }
+    });
+}
+
+function showError() {
+    document.querySelectorAll('.record-name').forEach(el => {
+        el.textContent = 'Error loading data';
+    });
+    document.querySelectorAll('.record-value').forEach(el => {
+        el.textContent = '--';
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Transactions and luck. Completed seasons only: an in-progress season has too
+// little history to grade or compare. Grades come from python/transaction_grades.py.
+// ---------------------------------------------------------------------------
+const GRADE_POINTS = { A: 4, B: 3, C: 2, D: 1, F: 0 };
+
+function addRecordCategory(tabId, title, cards) {
+    const tab = document.getElementById(tabId);
+    if (!tab) return;
+    const holders = key => ['holder', 'runner-up-1', 'runner-up-2'].map((position, i) => `
+                <div class="${i === 0 ? 'record-holder' : 'record-runner-up'}" data-record="${key}" data-position="${position}">
+                    <span class="record-rank">${i + 1}.</span>
+                    <span class="record-name">Loading...</span>
+                    <span class="record-value">0</span>
+                </div>`).join('');
+    const section = document.createElement('div');
+    section.className = 'records-category';
+    section.innerHTML = `
+        <h2 class="category-title">${title}</h2>
+        <div class="records-grid">${cards.map(card => `
+            <div class="record-card">
+                <h3 class="record-title">${card.title}</h3>
+                <p class="record-subtitle">${card.subtitle}</p>
+                <div class="record-holders">${holders(card.key)}
+                </div>
+            </div>`).join('')}
+        </div>`;
+    tab.appendChild(section);
+}
+
+const topN = (list, better) => [...list].sort((a, b) => better === 'high' ? b.raw - a.raw : a.raw - b.raw).slice(0, 3);
+
+async function calculateTransactionAndLuckRecords() {
+    try {
+        const [completedRows, moves, playerNames] = await Promise.all([
+            LeagueDb.query('SELECT DISTINCT season FROM final_placements'),
+            LeagueDb.query(`
+                SELECT m.move_id, m.kind, m.season, m.effective_week, m.grade, m.net_total, o.display_name AS owner
+                FROM transaction_moves m JOIN owners o ON o.owner_id = m.owner_id
+                WHERE m.provisional = 0`),
+            LeagueDb.query(`
+                SELECT mp.move_id, mp.direction, p.name
+                FROM transaction_move_players mp JOIN players p ON p.player_id = mp.player_id`)
+        ]);
+        const completed = new Set(completedRows.map(r => r.season));
+
+        const namesByMove = new Map();
+        playerNames.forEach(r => {
+            const key = `${r.move_id}|${r.direction}`;
+            if (!namesByMove.has(key)) namesByMove.set(key, []);
+            namesByMove.get(key).push(r.name);
+        });
+
+        // ----- counts and GPA, per manager (career) and per manager-season -----
+        const career = new Map(), seasonal = new Map();
+        const bucket = (map, key, label) => {
+            if (!map.has(key)) map.set(key, { label, PICKUP: [], TRADE: [], DROP: [] });
+            return map.get(key);
+        };
+        moves.forEach(m => {
+            bucket(career, m.owner, m.owner)[m.kind].push(m);
+            bucket(seasonal, `${m.owner}|${m.season}`, `${m.owner} (${m.season})`)[m.kind].push(m);
+        });
+        const gpa = list => {
+            const graded = list.filter(m => m.grade);
+            return { n: graded.length, value: graded.length ? graded.reduce((s, m) => s + GRADE_POINTS[m.grade], 0) / graded.length : null };
+        };
+        const countRecord = (map, kind) => [...map.values()].map(b => ({ team: b.label, raw: b[kind].length, value: String(b[kind].length) }));
+        const gpaRecord = (map, kind, minGraded) => [...map.values()]
+            .map(b => ({ b, g: gpa(b[kind]) })).filter(x => x.g.n >= minGraded)
+            .map(x => ({ team: x.b.label, raw: x.g.value, value: x.g.value.toFixed(2) }));
+        const set = (key, list, better) => updateRecord(key, topN(list, better));
+
+        // ----- luck: actual wins / wins the weekly score ranks predict, x 100 -----
+        const weekSize = {};
+        const regular = leagueScoreData.filter(g => g['Season Period'] === 'Regular' && g.Team && g.Opponent &&
+            g.Opponent.toLowerCase() !== 'bye' && completed.has(g.Season));
+        regular.forEach(g => {
+            const w = weekSize[`${g.Season}-${g.Week}`] || (weekSize[`${g.Season}-${g.Week}`] = { rows: 0, maxRank: 0 });
+            w.rows += 1;
+            w.maxRank = Math.max(w.maxRank, Number(g['Score Rank on Week']) || 0);
+        });
+        const luckCareer = new Map(), luckSeason = new Map();
+        regular.forEach(g => {
+            const rank = Number(g['Score Rank on Week']);
+            const w = weekSize[`${g.Season}-${g.Week}`];
+            const n = Math.max(w.rows, w.maxRank);
+            if (!(rank >= 1) || !(n > 1)) return;
+            const us = Number(g['Team Score']), them = Number(g['Opponent Score']);
+            const win = us > them ? 1 : us === them ? 0.5 : 0;
+            const expected = (n - rank) / (n - 1);
+            const add = (map, key, label) => {
+                const e = map.get(key) || { label, wins: 0, expected: 0, games: 0, seasons: new Set() };
+                e.wins += win; e.expected += expected; e.games += 1; e.seasons.add(g.Season);
+                map.set(key, e);
+            };
+            add(luckCareer, g.Team, g.Team);
+            add(luckSeason, `${g.Team}|${g.Season}`, `${g.Team} (${g.Season})`);
+        });
+        const luckList = (map, minGames, minSeasons) => [...map.values()]
+            .filter(e => e.games >= minGames && e.seasons.size >= minSeasons && e.expected > 0)
+            .map(e => ({ team: e.label, raw: 100 * e.wins / e.expected, value: (100 * e.wins / e.expected).toFixed(1) }));
+
+        // ----- single moves (best / worst) -----
+        const moveList = (kind, side) => moves.filter(m => m.kind === kind).map(m => {
+            const names = (namesByMove.get(`${m.move_id}|${side}`) || []).slice(0, 2).join(', ');
+            const what = names ? ` - ${names}` : '';
+            // a drop's net is minus what the player scored afterwards, so show those points as a plain number
+            const shown = kind === 'DROP' ? `${(-m.net_total).toFixed(1)}` : `${m.net_total >= 0 ? '+' : ''}${m.net_total.toFixed(1)}`;
+            return { team: `${m.owner} (${m.season} Wk ${m.effective_week})${what}`, raw: m.net_total, value: shown };
+        });
+
+        // ----- cards -----
+        addRecordCategory('league-records', 'Transactions (Full History)', [
+            { key: 'txMostPickups', title: 'Waiver Wire Regular', subtitle: 'Most waiver and free-agent pickups' },
+            { key: 'txMostTrades', title: 'Deal Maker', subtitle: 'Most trades made' },
+            { key: 'txMostDrops', title: 'Cut Happy', subtitle: 'Most players dropped outright' },
+            { key: 'txBestPickupGpa', title: 'Waiver Wire Wizard', subtitle: 'Best pickup GPA, career (min 25 graded pickups)' },
+            { key: 'txWorstPickupGpa', title: 'Waiver Wire Dud', subtitle: 'Worst pickup GPA, career (min 25 graded pickups)' },
+            { key: 'txBestTradeGpa', title: 'Trade Shark', subtitle: 'Best trade GPA, career (min 3 trades)' },
+            { key: 'txWorstTradeGpa', title: 'Robbed Blind', subtitle: 'Worst trade GPA, career (min 3 trades)' },
+            { key: 'txBestDropGpa', title: 'Ruthless Cutter', subtitle: 'Best drop GPA, career (min 15 graded drops)' },
+            { key: 'txWorstDropGpa', title: 'Cut Him Too Soon', subtitle: 'Worst drop GPA, career (min 15 graded drops)' }
+        ]);
+        addRecordCategory('league-records', 'Luck', [
+            { key: 'luckBestCareer', title: 'Charmed Life', subtitle: 'Luckiest career: actual wins vs. wins the weekly scores predict (100 = average, min 3 seasons)' },
+            { key: 'luckWorstCareer', title: 'Born Under a Bad Sign', subtitle: 'Unluckiest career (100 = average, min 3 seasons)' }
+        ]);
+        addRecordCategory('single-season', 'Transactions (Single Season)', [
+            { key: 'txMostPickupsSeason', title: 'Always on the Wire', subtitle: 'Most pickups in a single season' },
+            { key: 'txMostTradesSeason', title: 'Wheeler Dealer', subtitle: 'Most trades in a single season' },
+            { key: 'txMostDropsSeason', title: 'Roster Churn', subtitle: 'Most players dropped outright in a single season' },
+            { key: 'txBestPickupGpaSeason', title: 'Wire Genius', subtitle: 'Best pickup GPA in a season (min 8 graded pickups)' },
+            { key: 'txWorstPickupGpaSeason', title: 'Wire Disaster', subtitle: 'Worst pickup GPA in a season (min 8 graded pickups)' },
+            { key: 'txBestTradeGpaSeason', title: 'Fleeced Them', subtitle: 'Best trade GPA in a season (min 2 trades)' },
+            { key: 'txWorstTradeGpaSeason', title: 'Fleeced', subtitle: 'Worst trade GPA in a season (min 2 trades)' }
+        ]);
+        addRecordCategory('single-season', 'Best & Worst Moves', [
+            { key: 'txBestPickupEver', title: 'Best Pickup Ever', subtitle: 'Most rest-of-season points gained on one pickup (added minus dropped)' },
+            { key: 'txBestTradeEver', title: 'Best Trade Ever', subtitle: 'Most rest-of-season points gained on one side of a trade' },
+            { key: 'txWorstTradeEver', title: 'Worst Trade Ever', subtitle: 'Most rest-of-season points lost on one side of a trade' },
+            { key: 'txCostliestDrop', title: 'Costliest Drop', subtitle: 'Dropped a player who then scored the most points for the rest of the regular season' }
+        ]);
+        addRecordCategory('single-season', 'Luck (Single Season)', [
+            { key: 'luckBestSeason', title: 'Charmed Season', subtitle: 'Luckiest season (100 = average, min 10 games)' },
+            { key: 'luckWorstSeason', title: 'Cursed Season', subtitle: 'Unluckiest season (100 = average, min 10 games)' }
+        ]);
+
+        set('txMostPickups', countRecord(career, 'PICKUP'), 'high');
+        set('txMostTrades', countRecord(career, 'TRADE'), 'high');
+        set('txMostDrops', countRecord(career, 'DROP'), 'high');
+        set('txBestPickupGpa', gpaRecord(career, 'PICKUP', 25), 'high');
+        set('txWorstPickupGpa', gpaRecord(career, 'PICKUP', 25), 'low');
+        set('txBestTradeGpa', gpaRecord(career, 'TRADE', 3), 'high');
+        set('txWorstTradeGpa', gpaRecord(career, 'TRADE', 3), 'low');
+        set('txBestDropGpa', gpaRecord(career, 'DROP', 15), 'high');
+        set('txWorstDropGpa', gpaRecord(career, 'DROP', 15), 'low');
+        set('luckBestCareer', luckList(luckCareer, 0, 3), 'high');
+        set('luckWorstCareer', luckList(luckCareer, 0, 3), 'low');
+
+        set('txMostPickupsSeason', countRecord(seasonal, 'PICKUP'), 'high');
+        set('txMostTradesSeason', countRecord(seasonal, 'TRADE'), 'high');
+        set('txMostDropsSeason', countRecord(seasonal, 'DROP'), 'high');
+        set('txBestPickupGpaSeason', gpaRecord(seasonal, 'PICKUP', 8), 'high');
+        set('txWorstPickupGpaSeason', gpaRecord(seasonal, 'PICKUP', 8), 'low');
+        set('txBestTradeGpaSeason', gpaRecord(seasonal, 'TRADE', 2), 'high');
+        set('txWorstTradeGpaSeason', gpaRecord(seasonal, 'TRADE', 2), 'low');
+        set('luckBestSeason', luckList(luckSeason, 10, 1), 'high');
+        set('luckWorstSeason', luckList(luckSeason, 10, 1), 'low');
+
+        set('txBestPickupEver', moveList('PICKUP', 'IN'), 'high');
+        set('txBestTradeEver', moveList('TRADE', 'IN'), 'high');
+        set('txWorstTradeEver', moveList('TRADE', 'IN'), 'low');
+        // a drop's net is the negative of what the player scored afterwards, so the worst is the lowest
+        set('txCostliestDrop', moveList('DROP', 'OUT'), 'low');
+    } catch (error) {
+        console.error('Error calculating transaction records:', error);
+    }
+}

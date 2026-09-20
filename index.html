@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Grass Touchers - Fantasy Football League</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline class="video-background" id="videoBackground">
+        <source src="assets/videos/FFL Background Video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
+    <div class="container">
+        <!-- Watermark Logo -->
+        <img src="assets/logos/watermark_grey.png" alt="League Logo" class="watermark-logo">
+        
+        <!-- Three Sections -->
+        <div class="sections-wrapper">
+            <!-- Current Season Section -->
+            <a href="pages/current-season.html" class="section section-left" data-section="current-season">
+                <div class="section-background" style="background-image: url('assets/images/section-1.png');"></div>
+                <div class="section-overlay"></div>
+                <div class="section-content">
+                    <div class="icon-container">
+                        <img src="assets/logos/wordmark_yellow.png" alt="Current Season" class="section-icon">
+                    </div>
+                    <h2 class="section-title">CURRENT SEASON</h2>
+                    <p class="section-subtitle">2026 SEASON</p>
+                    <p class="section-description">STANDINGS, LIVE SCORES, AND WEEKLY MATCHUPS</p>
+                </div>
+                <div class="section-footer">
+                    <div class="section-number">01</div>
+                    <div class="section-name">CURRENT SEASON</div>
+                    <div class="section-bar"></div>
+                </div>
+            </a>
+
+            <!-- Past Seasons Section -->
+            <a href="pages/past-seasons.html" class="section section-middle" data-section="past-seasons">
+                <div class="section-background" style="background-image: url('assets/images/section-2.png');"></div>
+                <div class="section-overlay"></div>
+                <div class="section-content">
+                    <div class="icon-container">
+                        <img src="assets/logos/wordmark_yellow.png" alt="Past Seasons" class="section-icon">
+                    </div>
+                    <h2 class="section-title">PAST SEASONS</h2>
+                    <p class="section-subtitle">LEAGUE HISTORY</p>
+                    <p class="section-description">RECORDS, STATS, AND CHAMPIONSHIP HISTORY</p>
+                </div>
+                <div class="section-footer">
+                    <div class="section-number">02</div>
+                    <div class="section-name">PAST SEASONS</div>
+                    <div class="section-bar"></div>
+                </div>
+            </a>
+
+            <!-- League Members Section -->
+            <a href="pages/coming-soon.html" class="section section-right" data-section="league-members">
+                <div class="section-background" style="background-image: url('assets/images/section-3.png');"></div>
+                <div class="section-overlay"></div>
+                <div class="section-content">
+                    <div class="icon-container">
+                        <img src="assets/logos/wordmark_yellow.png" alt="League Members" class="section-icon">
+                    </div>
+                    <h2 class="section-title">LEAGUE MEMBERS</h2>
+                    <p class="section-subtitle">FRANCHISE OWNERS</p>
+                    <p class="section-description">MANAGER PROFILES AND CAREER STATS</p>
+                </div>
+                <div class="section-footer">
+                    <div class="section-number">03</div>
+                    <div class="section-name">LEAGUE MEMBERS</div>
+                    <div class="section-bar"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('videoBackground');
+            const sections = document.querySelectorAll('.section');
+            
+            // Add video darkening and greyscale on section hover
+            sections.forEach(function(section) {
+                section.addEventListener('mouseenter', function() {
+                    video.classList.add('darken-video');
+                });
+                section.addEventListener('mouseleave', function() {
+                    video.classList.remove('darken-video');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

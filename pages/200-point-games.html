@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>200+ Point Games - Past Seasons</title>
+    <link rel="stylesheet" href="../css/division-page.css">
+    <link rel="stylesheet" href="../css/200-point-games.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar past-seasons-nav">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <img src="../assets/logos/logo_2.png" alt="League Logo" class="nav-logo">
+                <div class="logo-text">
+                    <h1>GRASS TOUCHERS</h1>
+                    <p>FANTASY FOOTBALL LEAGUE</p>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">HOME</a>
+                <a href="current-season.html">CURRENT SEASON</a>
+                <a href="past-seasons.html">PAST SEASONS</a>
+                <a href="coming-soon.html">MEMBERS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back Navigation -->
+    <div class="page-back-nav past-seasons-back-nav">
+        <a href="past-seasons.html" class="back-link">← Back to Past Seasons</a>
+    </div>
+
+    <!-- Search/Filter Section -->
+    <section class="section-content standings-section">
+        <div class="search-container">
+            <div class="search-controls" style="border: none; padding: 0; margin-bottom: 1rem;">
+                <h1 class="page-title">200+ Point Games</h1>
+                <div class="results-count" id="results-count">0 games found</div>
+            </div>
+            
+            <div class="results-container">
+                <div class="results-header">
+                    <div class="result-cell">#</div>
+                    <div class="result-cell"></div>
+                    <div class="result-cell">Team</div>
+                    <div class="result-cell">Score</div>
+                    <div class="result-cell"></div>
+                    <div class="result-cell">Opponent</div>
+                    <div class="result-cell">Opp. Score</div>
+                    <div class="result-cell">Season</div>
+                    <div class="result-cell">Week</div>
+                    <div class="result-cell">Details</div>
+                </div>
+                
+                <div id="high-score-results" class="results-list">
+                    <div class="loading-message">Loading 200+ point games...</div>
+                </div>
+                
+                <div id="bottom-pagination"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
+    <script src="../js/league-db.js"></script>
+    <script src="../js/200-point-games.js?v=6"></script>
+</body>
+</html>

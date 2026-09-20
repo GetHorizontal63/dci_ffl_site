@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Past Seasons</title>
+    <link rel="stylesheet" href="../css/division-page.css">
+    <link rel="stylesheet" href="../css/history-pages.css">
+</head>
+<body class="hp-transactions frozen-page">
+    <!-- Navigation -->
+    <nav class="navbar past-seasons-nav">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <img src="../assets/logos/logo_2.png" alt="League Logo" class="nav-logo">
+                <div class="logo-text">
+                    <h1>GRASS TOUCHERS</h1>
+                    <p>FANTASY FOOTBALL LEAGUE</p>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">HOME</a>
+                <a href="current-season.html">CURRENT SEASON</a>
+                <a href="past-seasons.html">PAST SEASONS</a>
+                <a href="coming-soon.html">MEMBERS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back Navigation -->
+    <div class="page-back-nav past-seasons-back-nav">
+        <a href="past-seasons.html" class="back-link">← Back to Past Seasons</a>
+    </div>
+
+    <section class="section-content standings-section">
+        <div class="search-container">
+            <div class="hp-frozen frozen-head">
+            <h1 class="page-title">Transactions</h1>
+
+            <div class="hp-controls">
+                <div class="hp-field">
+                    <label class="hp-label" for="season-select">Season</label>
+                    <select id="season-select" class="hp-select"><option>Loading...</option></select>
+                </div>
+                <div class="hp-field">
+                    <label class="hp-label" for="manager-select">Manager</label>
+                    <select id="manager-select" class="hp-select"><option>Loading...</option></select>
+                </div>
+                <div class="hp-field">
+                    <label class="hp-label" for="sort-select">Sort</label>
+                    <select id="sort-select" class="hp-select"></select>
+                </div>
+            </div>
+
+            <div class="hp-tabs" id="hp-tabs" role="tablist">
+                <button class="hp-tab" data-tab="cards" role="tab">Report Cards</button>
+                <button class="hp-tab" data-tab="pickups" role="tab">Waivers &amp; Free Agents</button>
+                <button class="hp-tab" data-tab="trades" role="tab">Trades</button>
+                <button class="hp-tab" data-tab="drops" role="tab">Drops</button>
+            </div>
+            </div>
+
+            <div id="hp-content" class="frozen-body"><div class="hp-loading">Loading transactions...</div></div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
+    <script src="../js/league-db.js"></script>
+    <script src="../js/transactions.js"></script>
+</body>
+</html>

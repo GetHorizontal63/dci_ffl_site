@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Log - Current Season</title>
+    <link rel="stylesheet" href="../css/division-page.css">
+    <link rel="stylesheet" href="../css/game-search.css?v=11">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar current-season-nav">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <img src="../assets/logos/logo_2.png" alt="League Logo" class="nav-logo">
+                <div class="logo-text">
+                    <h1>GRASS TOUCHERS</h1>
+                    <p>FANTASY FOOTBALL LEAGUE</p>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">HOME</a>
+                <a href="current-season.html">CURRENT SEASON</a>
+                <a href="past-seasons.html">PAST SEASONS</a>
+                <a href="coming-soon.html">MEMBERS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back Navigation -->
+    <div class="page-back-nav">
+        <a href="current-season.html" class="back-link">← Back to Current Season</a>
+    </div>
+
+    <!-- Search/Filter Section -->
+    <section class="section-content standings-section">
+        <div class="search-container">
+            <div class="search-controls">
+                <div class="search-filters">
+                    <div class="filter-group">
+                        <label for="season-filter">Season</label>
+                        <select id="season-filter" class="filter-select">
+                            <option value="">All Seasons</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="week-filter">Week</label>
+                        <select id="week-filter" class="filter-select">
+                            <option value="">All Weeks</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="team-filter">Team</label>
+                        <select id="team-filter" class="filter-select">
+                            <option value="">All Teams</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="matchup-type-filter">Matchup Type</label>
+                        <select id="matchup-type-filter" class="filter-select">
+                            <option value="">All Matchup Types</option>
+                            <option value="regular">Regular Season</option>
+                            <option value="playoff">Playoffs</option>
+                            <option value="championship">Championship</option>
+                            <option value="consolation">Consolation</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="sort-filter">Sort By</label>
+                        <select id="sort-filter" class="filter-select">
+                            <option value="date-desc">Date (Newest First)</option>
+                            <option value="date-asc">Date (Oldest First)</option>
+                            <option value="score-desc">Total Points (High to Low)</option>
+                            <option value="score-asc">Total Points (Low to High)</option>
+                            <option value="fpplus-desc">FP+ (High to Low)</option>
+                            <option value="fpplus-asc">FP+ (Low to High)</option>
+                            <option value="eff-desc">Efficiency (High to Low)</option>
+                            <option value="eff-asc">Efficiency (Low to High)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="results-count">0 games found</div>
+            </div>
+            
+            <div class="results-container">
+                <div class="results-header">
+                    <div class="result-cell">Season</div>
+                    <div class="result-cell">Week</div>
+                    <div class="result-cell">Period</div>
+                    <div class="result-cell"></div>
+                    <div class="result-cell">Team</div>
+                    <div class="result-cell">Score</div>
+                    <div class="result-cell">FP+</div>
+                    <div class="result-cell">Eff.</div>
+                    <div class="result-cell"></div>
+                    <div class="result-cell">Opponent</div>
+                    <div class="result-cell">Score</div>
+                    <div class="result-cell">FP+</div>
+                    <div class="result-cell">Eff.</div>
+                    <div class="result-cell">Details</div>
+                </div>
+                
+                <div id="game-results" class="results-list">
+                    <div class="loading-message">Loading games...</div>
+                </div>
+                
+                <div id="bottom-pagination"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
+    <script src="../js/league-db.js"></script>
+    <script src="../js/game-search.js?v=8"></script>
+</body>
+</html>

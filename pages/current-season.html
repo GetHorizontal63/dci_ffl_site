@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Season - Grass Touchers FFL</title>
+    <link rel="stylesheet" href="../css/division-page.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar current-season-nav">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <img src="../assets/logos/logo_2.png" alt="League Logo" class="nav-logo">
+                <div class="logo-text">
+                    <h1>GRASS TOUCHERS</h1>
+                    <p>FANTASY FOOTBALL LEAGUE</p>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">HOME</a>
+                <a href="current-season.html">CURRENT SEASON</a>
+                <a href="past-seasons.html">PAST SEASONS</a>
+                <a href="coming-soon.html">MEMBERS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero current-season-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-title-container">
+                <div class="hero-box current-season-box"></div>
+                <h1 class="hero-title">CURRENT<br>SEASON</h1>
+            </div>
+            <p class="hero-subtitle">2025 SEASON</p>
+            <p class="hero-description">STANDINGS, LIVE SCORES, AND WEEKLY MATCHUPS</p>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- Standings Header -->
+    <section class="section-header current-season-accent">
+        <div class="section-header-content">
+            <h2>LEAGUE STANDINGS</h2>
+        </div>
+    </section>
+
+    <!-- Standings Section -->
+    <section class="section-content standings-section">
+        <div class="standings-container">
+            <div id="divisionsStandings">
+                <!-- Division standings will be populated here -->
+                <p style="text-align: center; padding: 2rem;">Loading standings...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- This Week Header -->
+    <section class="section-header current-season-accent">
+        <div class="section-header-content">
+            <h2 id="thisWeekHeader">THIS WEEK'S MATCHUPS</h2>
+        </div>
+    </section>
+
+    <!-- Matchups Section -->
+    <section class="section-content matchups-section">
+        <div id="matchupsContainer" style="max-width: 1200px; margin: 0 auto;">
+            <p style="text-align: center; padding: 2rem;">Loading matchups...</p>
+        </div>
+    </section>
+
+    <!-- Season Details Header -->
+    <section class="section-header current-season-accent">
+        <div class="section-header-content">
+            <h2>SEASON DETAILS</h2>
+        </div>
+    </section>
+
+    <!-- Season Details Section -->
+    <section class="section-content details-section">
+        <div class="details-nav-container">
+            <a href="game-log.html" class="detail-nav-button">
+                <h3>Game Log</h3>
+            </a>
+            <a href="playoff-picture.html" class="detail-nav-button">
+                <h3>Play-Off Picture</h3>
+            </a>
+            <a href="notable-games.html" class="detail-nav-button">
+                <h3>Notable Games</h3>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Grass Touchers Fantasy Football League | All Rights Reserved</p>
+            <div class="footer-bar current-season-bar"></div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
+    <script src="../js/league-db.js"></script>
+    <script src="../js/playoff-numbers.js"></script>
+    <script src="../js/division-page.js"></script>
+    <script>
+        // Calculate current season based on league year (August 1 - July 31)
+        function getCurrentSeason() {
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth(); // 0-indexed (0 = January, 7 = August)
+            
+            // If we're in August-December, use current year
+            // If we're in January-July, use previous year
+            return currentMonth >= 7 ? currentYear : currentYear - 1;
+        }
+        
+        // Load standings data
+        async function loadStandings() {
+            const currentSeason = getCurrentSeason();
+            
+            try {
+                const [allData, divisionsData] = await Promise.all([
+                    LeagueDb.scoreRows(),
+                    LeagueDb.divisions()
+                ]);
+                processStandings(allData, divisionsData, currentSeason, { teams: [] });
+            } catch (error) {
+                console.error('Error loading standings:', error);
+                document.getElementById('divisionsStandings').innerHTML = 
+                    '<p style="text-align: center; padding: 2rem; color: #ff4444;">Error loading standings database.</p>';
+            }
+        }
+        
+        function loadFile(url, callback) {
+            const xhr = new XMLHttpRequest();
+            // Add cache-busting parameter to force fresh load
+            const cacheBuster = new Date().getTime();
+            const urlWithCache = url.includes('?') ? `${url}&v=${cacheBuster}` : `${url}?v=${cacheBuster}`;
+            xhr.open('GET', urlWithCache, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    callback(JSON.parse(xhr.responseText));
+                } else {
+                    throw new Error('Failed to load: ' + url);
+                }
+            };
+            xhr.onerror = function() {
+                throw new Error('Network error loading: ' + url);
+            };
+            xhr.send();
+        }
+        
+        function processStandings(allData, divisionsData, currentSeason, teamAbbrData) {
+            try {
+                // Filter for current season - all games for standings
+                const seasonData = allData.filter(game => 
+                    game.Season === currentSeason && 
+                    game['Season Period'] === 'Regular'
+                );
+                
+                // Filter for all current season games for matchups
+                const allSeasonData = allData.filter(game => game.Season === currentSeason);
+
+                // Preserve a franchise's streak across the season boundary, even when
+                // its manager name changed between seasons.
+                const franchiseByName = {};
+                (teamAbbrData.teams || []).forEach(team => {
+                    const franchiseId = team.abbreviations?.FranchiseID;
+                    if (franchiseId !== undefined) {
+                        franchiseByName[team.name] = String(franchiseId);
+                    }
+                });
+                const priorSeasonResults = {};
+                const priorGameIds = new Set();
+                const priorSeasonData = allData
+                    .filter(game => game.Season === currentSeason - 1)
+                    .sort((a, b) => (
+                        (a.Week - b.Week) ||
+                        (a['Game ID'] - b['Game ID'])
+                    ));
+
+                priorSeasonData.forEach(game => {
+                    const gameKey = `${game.Season}-${game['Game ID']}`;
+                    if (priorGameIds.has(gameKey)) return;
+                    priorGameIds.add(gameKey);
+
+                    const teamKey = franchiseByName[game.Team] || game.Team;
+                    const opponentKey = franchiseByName[game.Opponent] || game.Opponent;
+                    if (!priorSeasonResults[teamKey]) priorSeasonResults[teamKey] = [];
+                    if (!priorSeasonResults[opponentKey]) priorSeasonResults[opponentKey] = [];
+
+                    if (game['Team Score'] > game['Opponent Score']) {
+                        priorSeasonResults[teamKey].push('W');
+                        priorSeasonResults[opponentKey].push('L');
+                    } else if (game['Opponent Score'] > game['Team Score']) {
+                        priorSeasonResults[teamKey].push('L');
+                        priorSeasonResults[opponentKey].push('W');
+                    } else {
+                        priorSeasonResults[teamKey].push('T');
+                        priorSeasonResults[opponentKey].push('T');
+                    }
+                });
+                
+                // Calculate standings using each Game ID only once
+                const standings = {};
+                const processedGameIds = new Set();
+                
+                seasonData.forEach(game => {
+                    const gameId = game['Game ID'];
+                    
+                    // Skip if we've already processed this game
+                    if (processedGameIds.has(gameId)) return;
+                    processedGameIds.add(gameId);
+                    
+                    const team = game.Team;
+                    const opponent = game.Opponent;
+                    const teamScore = game['Team Score'];
+                    const opponentScore = game['Opponent Score'];
+                    
+                    // Initialize team if not exists
+                    if (!standings[team]) {
+                        standings[team] = {
+                            wins: 0, losses: 0, ties: 0,
+                            pointsFor: 0, pointsAgainst: 0,
+                            games: [...(priorSeasonResults[franchiseByName[team] || team] || [])]
+                        };
+                    }
+                    if (!standings[opponent]) {
+                        standings[opponent] = {
+                            wins: 0, losses: 0, ties: 0,
+                            pointsFor: 0, pointsAgainst: 0,
+                            games: [...(priorSeasonResults[franchiseByName[opponent] || opponent] || [])]
+                        };
+                    }
+                    
+                    // Update stats
+                    standings[team].pointsFor += teamScore;
+                    standings[team].pointsAgainst += opponentScore;
+                    standings[opponent].pointsFor += opponentScore;
+                    standings[opponent].pointsAgainst += teamScore;
+                    
+                    // Determine winner
+                    if (teamScore > opponentScore) {
+                        standings[team].wins++;
+                        standings[team].games.push('W');
+                        standings[opponent].losses++;
+                        standings[opponent].games.push('L');
+                    } else if (opponentScore > teamScore) {
+                        standings[opponent].wins++;
+                        standings[opponent].games.push('W');
+                        standings[team].losses++;
+                        standings[team].games.push('L');
+                    } else {
+                        standings[team].ties++;
+                        standings[team].games.push('T');
+                        standings[opponent].ties++;
+                        standings[opponent].games.push('T');
+                    }
+                });
+                
+                // Convert to array and calculate derived stats
+                const standingsArray = Object.keys(standings).map(teamName => {
+                    const team = standings[teamName];
+                    const totalGames = team.wins + team.losses + team.ties;
+                    const pct = totalGames > 0 ? (team.wins + team.ties * 0.5) / totalGames : 0;
+                    const pointDiff = team.pointsFor - team.pointsAgainst;
+                    
+                    // Calculate streak
+                    let streak = 0;
+                    let streakType = '';
+                    if (team.games.length > 0) {
+                        const lastResult = team.games[team.games.length - 1];
+                        streakType = lastResult;
+                        for (let i = team.games.length - 1; i >= 0; i--) {
+                            if (team.games[i] === lastResult) {
+                                streak++;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                    const streakStr = streak > 0 ? streakType + streak : '-';
+                    
+                    // Last 5 games - show W-L record
+                    const last5Games = team.games.slice(-5);
+                    const last5Wins = last5Games.filter(g => g === 'W').length;
+                    const last5Losses = last5Games.filter(g => g === 'L').length;
+                    const last5 = last5Games.length > 0 ? `${last5Wins}-${last5Losses}` : '-';
+                    
+                    return {
+                        team: teamName,
+                        wins: team.wins,
+                        losses: team.losses,
+                        ties: team.ties,
+                        pct: pct.toFixed(3).replace(/^0(?=\.)/, ''),
+                        pf: team.pointsFor.toFixed(2),
+                        pa: team.pointsAgainst.toFixed(2),
+                        pd: pointDiff.toFixed(2),
+                        streak: streakStr,
+                        last5: last5,
+                        elim: '-', // Placeholder for elimination number
+                        h2hRecords: {} // Will store head-to-head records
+                    };
+                });
+                
+                // Calculate head-to-head records between teams
+                seasonData.forEach(game => {
+                    const gameId = game['Game ID'];
+                    if (processedGameIds.has(gameId)) return;
+                    
+                    const team = game.Team;
+                    const opponent = game.Opponent;
+                    const teamScore = game['Team Score'];
+                    const opponentScore = game['Opponent Score'];
+                    
+                    const teamObj = standingsArray.find(t => t.team === team);
+                    const oppObj = standingsArray.find(t => t.team === opponent);
+                    
+                    if (teamObj && oppObj) {
+                        if (!teamObj.h2hRecords[opponent]) {
+                            teamObj.h2hRecords[opponent] = { wins: 0, losses: 0, ties: 0 };
+                        }
+                        if (!oppObj.h2hRecords[team]) {
+                            oppObj.h2hRecords[team] = { wins: 0, losses: 0, ties: 0 };
+                        }
+                        
+                        if (teamScore > opponentScore) {
+                            teamObj.h2hRecords[opponent].wins++;
+                            oppObj.h2hRecords[team].losses++;
+                        } else if (opponentScore > teamScore) {
+                            teamObj.h2hRecords[opponent].losses++;
+                            oppObj.h2hRecords[team].wins++;
+                        } else {
+                            teamObj.h2hRecords[opponent].ties++;
+                            oppObj.h2hRecords[team].ties++;
+                        }
+                    }
+                });
+                
+                // Rough league-wide order by win percentage. The real ordering (record,
+                // head-to-head, point differential, points for) is applied within each
+                // division in renderDivisionStandings.
+                standingsArray.sort((a, b) => parseFloat(b.pct) - parseFloat(a.pct));
+
+                // Get divisions for current season
+                const divisions = divisionsData[currentSeason] || {};
+                
+                // Render standings by division
+                SEASON_GAMES = regularSeasonLength(allData, currentSeason);
+                renderDivisionStandings(standingsArray, divisions);
+                
+                // Load matchups for the most recent week (using all season data including playoffs)
+                loadMatchups(allSeasonData, currentSeason, teamAbbrData);
+                
+            } catch (error) {
+                console.error('Error processing standings:', error);
+                document.getElementById('divisionsStandings').innerHTML = 
+                    '<p style="text-align: center; padding: 2rem; color: #ff4444;">Error processing standings data</p>';
+            }
+        }
+        
+        function loadMatchups(seasonData, currentSeason, teamAbbrData) {
+            try {
+                // Create team abbreviation lookup map
+                const teamLogoMap = {};
+                teamAbbrData.teams.forEach(team => {
+                    teamLogoMap[team.name] = team.abbreviations.FFL;
+                });
+                
+                // Find the highest League Week value for the current season
+                let maxLeagueWeek = 0;
+                seasonData.forEach(game => {
+                    const leagueWeek = game['League Week'];
+                    if (leagueWeek > maxLeagueWeek) maxLeagueWeek = leagueWeek;
+                });
+                
+                // Get the regular week number for display
+                const weekGames = seasonData.filter(game => game['League Week'] === maxLeagueWeek);
+                const displayWeek = weekGames.length > 0 ? weekGames[0]['Week'] : maxLeagueWeek;
+                
+                // Update header with week number
+                document.getElementById('thisWeekHeader').textContent = `WEEK ${displayWeek} MATCHUPS`;
+                
+                // Group by Game ID to get unique matchups
+                const matchupsMap = new Map();
+                weekGames.forEach(game => {
+                    const gameId = game['Game ID'];
+                    if (!matchupsMap.has(gameId)) {
+                        matchupsMap.set(gameId, {
+                            team1: game.Team,
+                            score1: game['Team Score'],
+                            team2: game.Opponent,
+                            score2: game['Opponent Score'],
+                            logo1: teamLogoMap[game.Team] || 'default',
+                            logo2: teamLogoMap[game.Opponent] || 'default',
+                            period: game['Season Period']
+                        });
+                    }
+                });
+                
+                // Render matchups
+                renderMatchups(Array.from(matchupsMap.values()));
+                
+            } catch (error) {
+                console.error('Error loading matchups:', error);
+                document.getElementById('matchupsContainer').innerHTML = 
+                    '<p style="text-align: center; padding: 2rem; color: #ff4444;">Error loading matchups</p>';
+            }
+        }
+        
+        function renderMatchups(matchups) {
+            const container = document.getElementById('matchupsContainer');
+            
+            if (matchups.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 2rem;">No matchups available</p>';
+                return;
+            }
+            
+            let html = '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; padding: 2rem;">';
+            
+            matchups.forEach(matchup => {
+                const team1Wins = matchup.score1 > matchup.score2;
+                const team2Wins = matchup.score2 > matchup.score1;
+                const team1ScoreColor = team1Wins ? '#4ade80' : 'rgba(255, 255, 255, 0.5)';
+                const team2ScoreColor = team2Wins ? '#4ade80' : 'rgba(255, 255, 255, 0.5)';
+                const team1NameColor = team1Wins ? '#fff' : 'rgba(255, 255, 255, 0.5)';
+                const team2NameColor = team2Wins ? '#fff' : 'rgba(255, 255, 255, 0.5)';
+                const team1ScoreWeight = team1Wins ? 'bold' : 'normal';
+                const team2ScoreWeight = team2Wins ? 'bold' : 'normal';
+                
+                // Determine border styling based on Season Period
+                let borderStyle = '1px solid rgba(255, 255, 255, 0.1)';
+                const periodLower = (matchup.period || '').toLowerCase();
+                if (periodLower === 'championship') {
+                    borderStyle = '3px solid #fbbf24'; // Yellow border for Championship
+                } else if (periodLower === 'chumpionship') {
+                    borderStyle = '3px solid #ef4444'; // Red border for Chumpionship
+                }
+                
+                html += `
+                    <style>
+                        @keyframes pulseLeft {
+                            0%, 100% { opacity: 0.4; }
+                            50% { opacity: 0.8; }
+                        }
+                        @keyframes pulseRight {
+                            0%, 100% { opacity: 0.4; }
+                            50% { opacity: 0.8; }
+                        }
+                    </style>
+                    <div style="background: #1a1a1a; padding: 1.5rem; border: ${borderStyle}; width: 350px; position: relative; overflow: hidden;">
+                        ${team1Wins ? '<div style="position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: linear-gradient(to right, rgba(74, 222, 128, 0.15), rgba(74, 222, 128, 0)); z-index: 0; pointer-events: none;"></div>' : ''}
+                        ${team1Wins ? '<div style="position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: radial-gradient(ellipse at left, rgba(74, 222, 128, 0.3) 0%, rgba(74, 222, 128, 0) 70%); animation: pulseLeft 2s ease-in-out infinite; z-index: 0; pointer-events: none;"></div>' : ''}
+                        ${team1Wins ? '<div style="position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: linear-gradient(to bottom, rgba(74, 222, 128, 0), rgba(74, 222, 128, 0.8) 20%, rgba(74, 222, 128, 0.8) 80%, rgba(74, 222, 128, 0)); z-index: 0; pointer-events: none;"></div>' : ''}
+                        ${team2Wins ? '<div style="position: absolute; top: 0; right: 0; width: 50%; height: 100%; background: linear-gradient(to left, rgba(74, 222, 128, 0.15), rgba(74, 222, 128, 0)); z-index: 0; pointer-events: none;"></div>' : ''}
+                        ${team2Wins ? '<div style="position: absolute; top: 0; right: 0; width: 50%; height: 100%; background: radial-gradient(ellipse at right, rgba(74, 222, 128, 0.3) 0%, rgba(74, 222, 128, 0) 70%); animation: pulseRight 2s ease-in-out infinite; z-index: 0; pointer-events: none;"></div>' : ''}
+                        ${team2Wins ? '<div style="position: absolute; top: 0; right: 0; width: 3px; height: 100%; background: linear-gradient(to bottom, rgba(74, 222, 128, 0), rgba(74, 222, 128, 0.8) 20%, rgba(74, 222, 128, 0.8) 80%, rgba(74, 222, 128, 0)); z-index: 0; pointer-events: none;"></div>' : ''}
+                        <div style="position: absolute; top: -27.5%; left: -15%; width: 42%; height: 155%; background-image: url('../assets/icons/ffl-logos/${matchup.logo1}.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.1; z-index: 0; pointer-events: none;"></div>
+                        <div style="position: absolute; top: -27.5%; right: -15%; width: 42%; height: 155%; background-image: url('../assets/icons/ffl-logos/${matchup.logo2}.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.1; z-index: 0; pointer-events: none;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1;">
+                            <div style="width: 42%; text-align: center;">
+                                <div style="font-weight: bold; margin-bottom: 0.5rem; color: ${team1NameColor};">${matchup.team1}</div>
+                                <div style="font-size: 1.5rem; color: ${team1ScoreColor}; font-weight: ${team1ScoreWeight};">${matchup.score1.toFixed(2)}</div>
+                            </div>
+                            <div style="width: 16%; text-align: center; font-size: 1.2rem; color: rgba(255, 255, 255, 0.5);">VS</div>
+                            <div style="width: 42%; text-align: center;">
+                                <div style="font-weight: bold; margin-bottom: 0.5rem; color: ${team2NameColor};">${matchup.team2}</div>
+                                <div style="font-size: 1.5rem; color: ${team2ScoreColor}; font-weight: ${team2ScoreWeight};">${matchup.score2.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // ---- Magic / elimination numbers ----------------------------------
+        // Per division: the top 2 go straight to the Championship bracket, the
+        // top 6 make the playoff field (3rd-6th via the play-in), and 7th/8th
+        // fall to the Gulag.
+        const AUTO_SPOTS = 2;
+        const PLAYOFF_SPOTS = 6;
+
+        // Games in a regular season. A season's schedule isn't in the data until
+        // it's played, so a season not listed here falls back to the length of the
+        // most recent completed season.
+        const SEASON_LENGTH_OVERRIDE = { 2026: 13 };
+        let SEASON_GAMES = null;
+        let SEASON_GAMES_ASSUMED = false;
+
+        function regularSeasonLength(allData, season) {
+            SEASON_GAMES_ASSUMED = false;
+            if (SEASON_LENGTH_OVERRIDE[season]) return SEASON_LENGTH_OVERRIDE[season];
+            SEASON_GAMES_ASSUMED = true;
+            for (let s = season - 1; s >= 2000; s--) {
+                const perTeam = {};
+                allData.forEach(g => {
+                    if (g.Season !== s || g['Season Period'] !== 'Regular') return;
+                    if (!g.Team || !g.Opponent || g.Team.toLowerCase() === 'bye' || g.Opponent.toLowerCase() === 'bye') return;
+                    perTeam[g.Team] = (perTeam[g.Team] || 0) + 1;
+                });
+                const counts = Object.values(perTeam);
+                if (counts.length) return Math.max(...counts);
+            }
+            return null;
+        }
+
+        function renderDivisionStandings(standings, divisions) {
+            const container = document.getElementById('divisionsStandings');
+            container.innerHTML = '';
+            
+            // Create standings for each division (exclude "league name")
+            Object.keys(divisions).forEach((divisionName, index) => {
+                // Skip "league name" as it's not a real division
+                if (divisionName.toLowerCase() === 'league name') return;
+                
+                const divisionTeams = divisions[divisionName];
+                let divisionStandings = standings.filter(team => divisionTeams.includes(team.team));
+
+                // League tiebreak: record, then head-to-head among the tied teams,
+                // then point differential, then points for.
+                const h2hOf = (a, b) => {
+                    const t = standings.find(x => x.team === a);
+                    const r = t && t.h2hRecords[b];
+                    return r ? { w: r.wins, l: r.losses, t: r.ties } : null;
+                };
+                divisionStandings = LeagueDb.rankByTiebreak(
+                    divisionStandings.map(t => ({ ...t, owner: t.team, pointsFor: parseFloat(t.pf), pointsAgainst: parseFloat(t.pa) })),
+                    h2hOf);
+                
+                // Create division header
+                const divisionHeader = document.createElement('h3');
+                divisionHeader.className = 'division-header';
+                divisionHeader.textContent = divisionName;
+                container.appendChild(divisionHeader);
+                
+                // Create table for this division
+                const table = document.createElement('table');
+                table.className = 'standings-table';
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>W</th>
+                            <th>L</th>
+                            <th>T</th>
+                            <th>PCT</th>
+                            <th>PF</th>
+                            <th>PA</th>
+                            <th>PD</th>
+                            <th>Strk</th>
+                            <th>Last 5</th>
+                            <th>Magic / Elim</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                
+                const tbody = table.querySelector('tbody');
+                const playoffCells = playoffNumbers(divisionStandings, SEASON_GAMES, AUTO_SPOTS, PLAYOFF_SPOTS - AUTO_SPOTS);
+                divisionStandings.forEach((team, idx) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${team.team}</strong></td>
+                        <td>${team.wins}</td>
+                        <td>${team.losses}</td>
+                        <td>${team.ties}</td>
+                        <td>${team.pct}</td>
+                        <td>${team.pf}</td>
+                        <td>${team.pa}</td>
+                        <td style="color: ${parseFloat(team.pd) >= 0 ? '#228b22' : '#ff4444'}">${team.pd}</td>
+                        <td>${team.streak}</td>
+                        <td style="font-size: 0.85em;">${team.last5}</td>
+                        <td>${playoffNumberCell(playoffCells[idx])}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                container.appendChild(table);
+                
+                // Add spacing between divisions
+                if (index < Object.keys(divisions).length - 1) {
+                    const spacer = document.createElement('div');
+                    spacer.style.height = '2rem';
+                    container.appendChild(spacer);
+                }
+            });
+
+            if (SEASON_GAMES) {
+                const legend = document.createElement('p');
+                legend.style.cssText = 'margin-top:1.5rem;font-size:0.8rem;line-height:1.5;color:rgba(255,255,255,0.55);';
+                legend.innerHTML =
+                    '<strong>M</strong> = magic number: wins by the team plus losses by its closest rival needed to clinch a top-2 spot (Championship bracket). ' +
+                    '<strong>M*</strong> = magic number to clinch a top-6 spot, which earns a play-in game rather than a bracket berth. ' +
+                    '<strong>E</strong> = elimination number: losses by the team plus wins by the rival on the cutoff needed to be out of the top 6 (7th/8th are in the Gulag). ' +
+                    '&#10003; = clinched, <strong>Elim</strong> = eliminated. ' +
+                    'Based on a ' + SEASON_GAMES + '-game regular season' + (SEASON_GAMES_ASSUMED ? ' (assumed: same as last season)' : '') + '. A tie is never counted as clinching or eliminating, so the numbers are conservative.';
+                container.appendChild(legend);
+            }
+        }
+        
+        // Update season year on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentSeason = getCurrentSeason();
+            
+            // Update hero subtitle
+            const heroSubtitle = document.querySelector('.hero-subtitle');
+            if (heroSubtitle) {
+                heroSubtitle.textContent = currentSeason + ' SEASON';
+            }
+            
+            // Update page title
+            document.title = 'Current Season (' + currentSeason + ') - Grass Touchers FFL';
+            
+            // Load standings
+            loadStandings();
+        });
+    </script>
+</body>
+</html>

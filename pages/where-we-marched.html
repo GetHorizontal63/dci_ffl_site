@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where We Marched - Past Seasons</title>
+    <link rel="stylesheet" href="../css/division-page.css">
+    <link rel="stylesheet" href="../css/where-we-marched.css">
+</head>
+<body class="bg-where-we-marched">
+    <!-- Navigation -->
+    <nav class="navbar past-seasons-nav">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <img src="../assets/logos/logo_2.png" alt="League Logo" class="nav-logo">
+                <div class="logo-text">
+                    <h1>GRASS TOUCHERS</h1>
+                    <p>FANTASY FOOTBALL LEAGUE</p>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">HOME</a>
+                <a href="current-season.html">CURRENT SEASON</a>
+                <a href="past-seasons.html">PAST SEASONS</a>
+                <a href="coming-soon.html">MEMBERS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back Navigation -->
+    <div class="page-back-nav past-seasons-back-nav">
+        <a href="past-seasons.html" class="back-link">← Back to Past Seasons</a>
+    </div>
+
+    <!-- Page Content -->
+    <section class="section-content standings-section">
+        <div class="search-container">
+            <h1 class="page-title">WHERE WE MARCHED</h1>
+            
+            <!-- World Class Section -->
+            <div class="corps-section">
+                <h2 class="section-title">World Class</h2>
+                <div class="corps-grid" id="world-class-grid">
+                    <div class="loading-message">Loading World Class corps...</div>
+                </div>
+            </div>
+
+            <!-- Open Class Section -->
+            <div class="corps-section">
+                <h2 class="section-title">Open Class</h2>
+                <div class="corps-grid" id="open-class-grid">
+                    <div class="loading-message">Loading Open Class corps...</div>
+                </div>
+            </div>
+
+            <!-- All Age Section -->
+            <div class="corps-section">
+                <h2 class="section-title">All Age</h2>
+                <div class="corps-grid" id="all-age-grid">
+                    <div class="loading-message">Loading All Age corps...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
+    <script src="../js/league-db.js"></script>
+    <script src="../js/division-page.js"></script>
+    <script src="../js/where-we-marched.js"></script>
+</body>
+</html>

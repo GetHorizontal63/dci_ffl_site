@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Details - Current Season</title>
+    <link rel="stylesheet" href="../css/division-page.css">
+    <link rel="stylesheet" href="../css/game-details.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar current-season-nav">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <img src="../assets/logos/logo_2.png" alt="League Logo" class="nav-logo">
+                <div class="logo-text">
+                    <h1>GRASS TOUCHERS</h1>
+                    <p>FANTASY FOOTBALL LEAGUE</p>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">HOME</a>
+                <a href="current-season.html">CURRENT SEASON</a>
+                <a href="past-seasons.html">PAST SEASONS</a>
+                <a href="coming-soon.html">MEMBERS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back Navigation -->
+    <div class="page-back-nav">
+        <a href="game-log.html" class="back-link">← Back to Game Log</a>
+    </div>
+
+    <!-- Game Details Section -->
+    <section class="section-content standings-section">
+        <div class="game-details-container">
+            <div class="loading-message">
+                <p>Loading game data...</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
+    <script src="../js/league-db.js"></script>
+    <script src="../js/game-details.js?v=2"></script>
+</body>
+</html>
