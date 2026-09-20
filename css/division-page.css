@@ -1,0 +1,1005 @@
+@import url('scrollbars.css');
+@import url('frozen-layout.css');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* Navigation */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgb(0, 0, 0);
+    padding: 1rem 2rem;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.logo-text h1 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    margin-bottom: 0;
+    line-height: 1;
+}
+
+.logo-text p {
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    opacity: 0.8;
+    margin-top: 0.3rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    opacity: 0.7;
+}
+
+/* Navbar color variations */
+.navbar.investment-strategies-nav .logo,
+.navbar.investment-strategies-nav .nav-links a {
+    color: #fff;
+}
+
+.navbar.performance-nav .logo,
+.navbar.performance-nav .nav-links a {
+    color: #fff;
+}
+
+.navbar.members-nav .logo,
+.navbar.members-nav .nav-links a {
+    color: #fff;
+}
+
+/* Hero Section */
+.hero {
+    height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.members-hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url('../assets/images/background-1.png') center/cover;
+}
+
+.current-season-hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url('../assets/images/background-7.png') center/cover;
+    background-attachment: fixed;
+}
+
+.past-seasons-hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url('../assets/images/background-3.png') center/cover;
+    background-attachment: fixed;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* EIN and CAGE */
+.hero-ein-cage {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 2;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+}
+
+.hero-ein-cage .ein-line,
+.hero-ein-cage .cage-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.hero-ein-cage .label {
+    font-weight: 900;
+    opacity: 1;
+}
+
+.data-science-ein-cage .label {
+    color: #ea6020;
+}
+
+.healthcare-ein-cage .label {
+    color: #d73e36;
+}
+
+.informatics-ein-cage .label {
+    color: #214cd5;
+}
+
+.investment-strategies-ein-cage .label {
+    color: #026ef4;
+}
+
+.performance-ein-cage .label {
+    color: #12b572;
+}
+
+.members-ein-cage .label {
+    color: #f5c302;
+}
+
+.hero-ein-cage .value {
+    font-weight: 500;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 2rem;
+}
+
+.hero-content .back-link {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1.5rem;
+    background: rgba(34, 139, 34, 0.2);
+    border: 1px solid rgba(34, 139, 34, 0.5);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+.hero-content .back-link:hover {
+    background: rgba(34, 139, 34, 0.4);
+    border-color: #228b22;
+}
+
+/* Page Back Navigation */
+.page-back-nav {
+    padding: 2rem 2rem 1rem 2rem;
+    background: #000;
+}
+
+.page-back-nav .back-link {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background: rgba(34, 139, 34, 0.2);
+    border: 1px solid rgba(34, 139, 34, 0.5);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+.page-back-nav .back-link:hover {
+    background: rgba(34, 139, 34, 0.4);
+    border-color: #228b22;
+}
+
+/* Past Seasons Back Navigation */
+.past-seasons-back-nav .back-link {
+    background: rgba(218, 165, 32, 0.2);
+    border-color: rgba(218, 165, 32, 0.5);
+}
+
+.past-seasons-back-nav .back-link:hover {
+    background: rgba(218, 165, 32, 0.4);
+    border-color: #daa520;
+}
+
+/* Hero Title Container and Box */
+.hero-title-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+/* Hero Box Outline */
+.hero-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40vw;
+    height: 60%;
+    border: 12px solid;
+    z-index: -1;
+}
+
+.data-science-box {
+    border-color: #ea6020;
+}
+
+.healthcare-box {
+    border-color: #d73e36;
+}
+
+.informatics-box {
+    border-color: #214cd5;
+}
+
+.investment-strategies-box {
+    border-color: #026ef4;
+}
+
+.performance-box {
+    border-color: #12b572;
+}
+
+.members-box {
+    border-color: #f5c302;
+}
+
+.current-season-box {
+    border-color: #228b22;
+}
+
+.past-seasons-box {
+    border-color: #daa520;
+}
+
+.hero-icon {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 2rem;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    line-height: 1.1;
+    position: relative;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    letter-spacing: 0.5em;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.hero-description {
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    opacity: 0.8;
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.scroll-arrow {
+    width: 30px;
+    height: 50px;
+    border: 2px solid #fff;
+    border-radius: 20px;
+    position: relative;
+}
+
+.scroll-arrow::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    animation: scroll 2s infinite;
+}
+
+@keyframes scroll {
+    0% {
+        top: 10px;
+        opacity: 1;
+    }
+    100% {
+        top: 30px;
+        opacity: 0;
+    }
+}
+
+/* Section Headers */
+.section-header {
+    padding: 4rem 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.section-header-content h2 {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 0.3em;
+    position: relative;
+    display: inline-block;
+}
+
+.data-science-accent {
+    background: linear-gradient(90deg, transparent 0%, rgba(234, 96, 32, 0.1) 50%, transparent 100%);
+    border-top: 3px solid #ea6020;
+    border-bottom: 3px solid #ea6020;
+}
+
+.healthcare-accent {
+    background: linear-gradient(90deg, transparent 0%, rgba(215, 62, 54, 0.1) 50%, transparent 100%);
+    border-top: 3px solid #d73e36;
+    border-bottom: 3px solid #d73e36;
+}
+
+.informatics-accent {
+    background: linear-gradient(90deg, transparent 0%, rgba(33, 76, 213, 0.1) 50%, transparent 100%);
+    border-top: 3px solid #214cd5;
+    border-bottom: 3px solid #214cd5;
+}
+
+.investment-strategies-accent {
+    background: linear-gradient(90deg, transparent 0%, rgba(2, 110, 244, 0.1) 50%, transparent 100%);
+    border-top: 3px solid #026ef4;
+    border-bottom: 3px solid #026ef4;
+}
+
+.performance-accent {
+    background: linear-gradient(90deg, transparent 0%, rgba(18, 181, 114, 0.1) 50%, transparent 100%);
+    border-top: 3px solid #12b572;
+    border-bottom: 3px solid #12b572;
+}
+
+.members-accent {
+    background: linear-gradient(90deg, transparent 0%, rgba(245, 195, 2, 0.1) 50%, transparent 100%);
+    border-top: 3px solid #f5c302;
+    border-bottom: 3px solid #f5c302;
+}
+
+.current-season-accent {
+    background: #000;
+    border-top: 3px solid #228b22;
+    border-bottom: 3px solid #228b22;
+}
+
+.past-seasons-accent {
+    background: linear-gradient(90deg, transparent 0%, rgba(218, 165, 32, 0.1) 50%, transparent 100%);
+    border-top: 3px solid #daa520;
+    border-bottom: 3px solid #daa520;
+}
+
+/* Matchups Section */
+.matchups-section {
+    padding: 4rem 2rem;
+    background: #0a0a0a;
+    position: relative;
+    overflow: hidden;
+}
+
+.matchups-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../assets/images/background-9.png') center/cover fixed;
+    filter: grayscale(100%);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.matchups-section > * {
+    position: relative;
+    z-index: 1;
+}
+/* Standings Section */
+.standings-section {
+    padding: 4rem 2rem;
+    background: #000;
+}
+
+.standings-section .info-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Standings Table */
+.standings-container {
+    max-width: min(1800px, 94vw);
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    overflow-x: auto;
+}
+
+.division-header {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: #fff;
+    margin: 3rem auto 1.5rem auto;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, rgba(34, 139, 34, 0.3) 0%, rgba(34, 139, 34, 0.1) 100%);
+    border-left: 4px solid #228b22;
+    border-right: 4px solid #228b22;
+    max-width: 600px;
+}
+
+.division-header:first-child {
+    margin-top: 1rem;
+}
+
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+}
+
+.standings-table thead {
+    background: rgba(34, 139, 34, 0.3);
+    border-bottom: 2px solid #228b22;
+}
+
+.standings-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    font-size: 0.9rem;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.standings-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.3s ease;
+}
+
+.standings-table tbody tr:hover {
+    background: rgba(34, 139, 34, 0.2);
+}
+
+.standings-table td {
+    padding: 1rem;
+    color: #fff;
+}
+
+.standings-table td:first-child {
+    font-weight: 700;
+}
+
+.standings-table th:nth-child(1),
+.standings-table td:nth-child(1) {
+    text-align: left;
+}
+
+.standings-table th:nth-child(n+2),
+.standings-table td:nth-child(n+2) {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .standings-table {
+        font-size: 0.85rem;
+    }
+    
+    .standings-table th,
+    .standings-table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+.info-container {
+    max-width: min(1800px, 94vw);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.info-text p {
+    font-size: 1rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    color: #d1dbdd;
+}
+
+.info-text h3 {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem;
+    letter-spacing: 0.1em;
+}
+
+.info-text ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-text li {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.6;
+    color: #d1dbdd;
+}
+
+.info-text li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: #fff;
+}
+
+.info-visual img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    filter: grayscale(100%);
+}
+
+/* Season Details Section */
+.details-section {
+    padding: 4rem 2rem;
+    background: #000;
+}
+
+.details-nav-container {
+    max-width: min(1800px, 94vw);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.detail-nav-button {
+    background: #0a0a0a;
+    padding: 3rem 2rem;
+    border: 2px solid rgba(34, 139, 34, 0.3);
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.detail-nav-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(34, 139, 34, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.detail-nav-button:hover::before {
+    left: 100%;
+}
+
+.detail-nav-button:hover {
+    border-color: #228b22;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(34, 139, 34, 0.3);
+}
+
+.detail-nav-button h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* Past Seasons yellow variant */
+.past-seasons-hero ~ * .detail-nav-button {
+    border-color: rgba(218, 165, 32, 0.3);
+}
+
+.past-seasons-hero ~ * .detail-nav-button::before {
+    background: linear-gradient(90deg, transparent, rgba(218, 165, 32, 0.2), transparent);
+}
+
+.past-seasons-hero ~ * .detail-nav-button:hover {
+    border-color: #daa520;
+    box-shadow: 0 5px 20px rgba(218, 165, 32, 0.3);
+}
+
+/* Contact Section */
+.contact-section {
+    background: #0a0a0a;
+}
+
+.contact-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;
+    padding: 1rem;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Arial', sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.contact-form textarea {
+    resize: vertical;
+}
+
+.submit-btn {
+    padding: 1rem 3rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    align-self: center;
+}
+
+.submit-btn:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+.data-science-btn {
+    background: #ea6020;
+    color: #fff;
+}
+
+.healthcare-btn {
+    background: #d73e36;
+    color: #fff;
+}
+
+.informatics-btn {
+    background: #214cd5;
+    color: #fff;
+}
+
+.investment-strategies-btn {
+    background: #026ef4;
+    color: #fff;
+}
+
+.performance-btn {
+    background: #12b572;
+    color: #fff;
+}
+
+.members-btn {
+    background: #f5c302;
+    color: #000;
+}
+
+/* Footer */
+.footer {
+    background: #000;
+    padding: 2rem;
+    text-align: center;
+}
+
+.footer-content p {
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    color: #d1dbdd;
+}
+
+.footer-bar {
+    height: 4px;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.data-science-bar {
+    background: linear-gradient(90deg, #ea6020 0%, #d54a10 100%);
+}
+
+.healthcare-bar {
+    background: linear-gradient(90deg, #d73e36 0%, #b82820 100%);
+}
+
+.informatics-bar {
+    background: linear-gradient(90deg, #214cd5 0%, #1a3ca8 100%);
+}
+
+.investment-strategies-bar {
+    background: linear-gradient(90deg, #026ef4 0%, #0256c4 100%);
+}
+
+.performance-bar {
+    background: linear-gradient(90deg, #12b572 0%, #0e9358 100%);
+}
+
+.members-bar {
+    background: linear-gradient(90deg, #f5c302 0%, #c79d02 100%);
+}
+
+.current-season-bar {
+    background: linear-gradient(90deg, #228b22 0%, #1a6b1a 100%);
+}
+
+.past-seasons-bar {
+    background: linear-gradient(90deg, #daa520 0%, #b8860b 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .info-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .services-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero-title {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .services-container {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .section-header-content h2 {
+        font-size: 2rem;
+    }
+}
+
+/* Login Page Styles */
+.login-container {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 3rem;
+    border-radius: 8px;
+    max-width: 450px;
+    width: 100%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 0.3em;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.login-subtitle {
+    font-size: 1rem;
+    letter-spacing: 0.5em;
+    margin-bottom: 2rem;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.login-form .form-group {
+    width: 100%;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Arial', sans-serif;
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.login-form input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.login-btn {
+    padding: 1rem 3rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    width: 100%;
+}
+
+.login-btn:hover {
+    transform: scale(1.02);
+    opacity: 0.9;
+}
+
+.login-links {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.forgot-password {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        padding: 2rem;
+        max-width: 90%;
+    }
+    
+    .login-title {
+        font-size: 2rem;
+    }
+}
+
+/* Championship Chips */
+.championship-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 4rem 2rem;
+    max-width: calc(5 * 200px + 6 * 1.5rem);
+    margin: 0 auto;
+}
+
+.champion-chip {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.chip-banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.champion-chip:hover .chip-banner-img {
+    transform: translateY(-5px);
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+}
+
+@media (max-width: 1200px) {
+    .champion-chip {
+        width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .championship-chips-container {
+        padding: 2rem 1rem;
+        gap: 1rem;
+    }
+    
+    .champion-chip {
+        width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .champion-chip {
+        width: 130px;
+    }
+}

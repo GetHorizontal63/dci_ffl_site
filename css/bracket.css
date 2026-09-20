@@ -1,0 +1,110 @@
+/* ===========================================
+   BRACKET TREE (shared: Play-Off Picture and Standings History)
+   =========================================== */
+
+.br-panel { container-type: inline-size; }
+
+/* ---- Bracket tree ----
+   Each game sits vertically centered between the two games that feed it, with
+   connector lines. Game width scales with the panel (container query) so the
+   whole tree fits, and the tree is centered in its panel both ways. */
+.br-scroll {
+    --cols: 4;
+    /* game width = (panel width - padding - gaps between columns) / columns,
+       so the whole tree always fits its panel without scrolling */
+    --gw: clamp(70px, calc((100cqw - 2.5rem - 6px - (var(--cols) - 1) * 32px) / var(--cols)), 240px);
+    --line: rgba(255, 255, 255, 0.25);
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    padding: 1.25rem;
+}
+
+.br-inner { margin: auto; width: max-content; }
+
+.br-heads { display: flex; margin-bottom: 1.5rem; }
+
+.br-head {
+    flex: none;
+    width: var(--gw);
+    margin-right: 32px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.br-head:last-child { margin-right: 0; }
+
+.br-node { display: flex; align-items: center; width: max-content; }
+.br-children { display: flex; flex-direction: column; }
+
+.br-branch { position: relative; padding: 14px 18px 14px 0; }
+
+.br-branch::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 18px;
+    border-top: 2px solid var(--line);
+}
+
+.br-children > .br-branch:not(:only-child)::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    border-right: 2px solid var(--line);
+}
+.br-children > .br-branch:first-child:not(:only-child)::before { top: 50%; bottom: 0; }
+.br-children > .br-branch:last-child:not(:only-child)::before { top: 0; bottom: 50%; }
+
+.br-game { position: relative; flex: none; width: var(--gw); }
+.br-game.br-has-feeders { margin-left: 14px; }
+.br-game.br-has-feeders::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    width: 14px;
+    border-top: 2px solid var(--line);
+}
+
+.br-tag {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -13px;
+    font-size: 0.6rem;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pp-bracket-game {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+}
+
+.pp-bracket-team {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.4rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.65);
+}
+.pp-bracket-team:first-child { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.pp-bracket-team.pp-winner { color: #fff; font-weight: 700; background: rgba(34, 139, 34, 0.22); }
+.pp-bracket-team.pp-winner .pp-bracket-score { color: #4ade80; }
+.pp-bracket-placeholder { color: rgba(255, 255, 255, 0.35); font-style: italic; }
+.pp-bracket-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pp-bracket-score { flex: none; }
+.br-note .pp-bracket-name { white-space: normal; font-size: 0.68rem; line-height: 1.25; }

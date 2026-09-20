@@ -1,0 +1,287 @@
+/* Background and Layout */
+.standings-section {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - 82px);
+    max-height: calc(100vh - 82px);
+    display: flex;
+    flex-direction: column;
+}
+
+.standings-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../assets/images/background-11.png') center/cover fixed;
+    filter: grayscale(100%);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.standings-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Search Container */
+.search-container {
+    max-width: min(1800px, 94vw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Results Count */
+.page-title {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: #fff;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0.0rem auto 1rem auto;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, rgba(218, 165, 32, 0.3) 0%, rgba(218, 165, 32, 0.1) 100%);
+    border-left: 4px solid #daa520;
+    border-right: 4px solid #daa520;
+    max-width: 600px;
+}
+
+.results-count {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.05em;
+    text-align: center;
+}
+
+/* Results Container */
+.results-container {
+    background: rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(218, 165, 32, 0.5);
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Results Header */
+.results-header {
+    display: flex;
+    align-items: center;
+    background: rgba(218, 165, 32, 0.2);
+    border-bottom: 2px solid #daa520;
+    padding: 0;
+    min-height: 50px;
+    flex-shrink: 0;
+}
+
+.result-cell {
+    padding: 1rem 0.75rem;
+    text-align: left;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Results List with Scroll */
+.results-list {
+    /* flex:1 fills whatever vertical room the page actually has; a fixed
+       max-height here previously capped this at ~9 rows regardless of
+       viewport size, leaving a large empty gap below on anything taller
+       than that. overflow-y still scrolls if a page of results is
+       genuinely too tall for the viewport. */
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* Custom Scrollbar */
+.results-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.results-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.results-list::-webkit-scrollbar-thumb {
+    background: rgba(218, 165, 32, 0.5);
+    border-radius: 4px;
+}
+
+.results-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(218, 165, 32, 0.7);
+}
+
+/* Result Rows */
+.result-row {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 65px;
+    transition: background 0.2s;
+}
+
+.result-row:hover {
+    background: rgba(218, 165, 32, 0.2);
+}
+
+.result-row .result-cell {
+    padding: 1rem 0.75rem;
+    font-weight: 400;
+    text-transform: none;
+    color: rgba(255, 255, 255, 0.9);
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+/* Team Logo */
+.team-logo {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.team-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Details Link */
+.details-link {
+    display: inline-block;
+    padding: 0.4rem 0.75rem;
+    background: rgba(218, 165, 32, 0.2);
+    border: 1px solid rgba(218, 165, 32, 0.5);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+}
+
+.details-link:hover {
+    background: rgba(218, 165, 32, 0.4);
+    border-color: #daa520;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    min-height: 60px;
+}
+
+.pagination-btn {
+    padding: 0.6rem 1.2rem;
+    background: rgba(218, 165, 32, 0.2);
+    border: 1px solid rgba(218, 165, 32, 0.5);
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    min-width: 110px;
+}
+
+.pagination-btn:hover:not(.disabled) {
+    background: rgba(218, 165, 32, 0.4);
+    border-color: #daa520;
+}
+
+.pagination-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-indicator {
+    padding: 0.6rem 1.2rem;
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    min-width: 110px;
+    text-align: center;
+}
+
+/* Loading States */
+.loading-message,
+.empty-state,
+.error-state {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+}
+
+/* Score Highlights */
+.high-score {
+    color: #4ade80 !important;
+    font-weight: 700 !important;
+}
+
+.low-score {
+    color: #f87171 !important;
+    font-weight: 400 !important;
+}
+
+/* Column sizing for the 200-point games table: proportional grid tracks so the table
+   spans the full container width (no fixed widths, no dead space on the right). */
+.results-header,
+.result-row {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 0.6fr)   /* # */
+        0.75rem            /* spacer */
+        minmax(0, 2.4fr)   /* team */
+        minmax(0, 1fr)     /* score */
+        0.75rem            /* spacer */
+        minmax(0, 2.4fr)   /* opponent */
+        minmax(0, 1fr)     /* opp. score */
+        minmax(0, 0.8fr)   /* season */
+        minmax(0, 0.7fr)   /* week */
+        minmax(0, 1.1fr);  /* details */
+    align-items: stretch;
+}
+.results-header { padding-right: 8px; }          /* matches the list's scrollbar gutter so columns line up */
+.results-list { scrollbar-gutter: stable; }
+
+.results-header .result-cell,
+.result-row .result-cell {
+    min-width: 0;
+    flex: none;
+    max-width: none;
+    justify-content: center;
+    text-align: center;
+}
+.results-header .result-cell:nth-child(3),
+.result-row .result-cell:nth-child(3),
+.results-header .result-cell:nth-child(6),
+.result-row .result-cell:nth-child(6) { justify-content: flex-start; text-align: left; gap: 0.5rem; }
+.results-header .result-cell:nth-child(2),
+.result-row .result-cell:nth-child(2),
+.results-header .result-cell:nth-child(5),
+.result-row .result-cell:nth-child(5) { padding: 0; }

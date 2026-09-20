@@ -1,0 +1,450 @@
+@import url('scrollbars.css');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+    position: relative;
+}
+
+/* Video Background */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    transition: filter 0.6s ease;
+}
+
+.video-background.darken-video {
+    filter: grayscale(100%) brightness(0.4);
+}
+
+/* Background Audio */
+.background-audio {
+    display: none;
+}
+
+/* Start Overlay */
+.start-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.5s ease;
+}
+
+.start-content {
+    text-align: center;
+}
+
+.start-content h2 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    margin-bottom: 2rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.start-button {
+    background: linear-gradient(135deg, #228b22 0%, #1a6b1a 100%);
+    color: white;
+    border: 2px solid white;
+    padding: 1.5rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.start-button:hover {
+    background: linear-gradient(135deg, #1a6b1a 0%, #228b22 100%);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(34, 139, 34, 0.6);
+}
+
+.container {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+}
+
+/* Watermark Logo */
+.watermark-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 105px;
+    height: auto;
+    z-index: 100;
+    filter: brightness(0) invert(1) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+    opacity: 0.9;
+}
+
+/* Header Styles */
+.header {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.main-title {
+    font-size: 6rem;
+    font-weight: 900;
+    letter-spacing: 0.3em;
+    margin-bottom: 0;
+    margin-right: -0.3em;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    letter-spacing: 0.8em;
+    font-weight: 300;
+    margin-left: 0.8em;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Sections Wrapper */
+.sections-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Individual Section Styles */
+.section {
+    position: relative;
+    width: 33.333%;
+    height: 100vh;
+    overflow: hidden;
+    cursor: pointer;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+/* Remove individual section backgrounds - video shows through */
+.section-left,
+.section-middle,
+.section-right {
+    background: transparent;
+}
+
+/* Section background images */
+.section-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: top center;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+.section:hover .section-background {
+    opacity: 1;
+}
+
+.section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+.section:hover::before {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* Overlay for color highlighting */
+.section-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+}
+
+/* Fantasy Football Color Scheme */
+.section-left .section-overlay {
+    background: rgba(34, 139, 34, 0.35); /* Forest Green for Current Season */
+}
+
+.section-middle .section-overlay {
+    background: rgba(218, 165, 32, 0.35); /* Goldenrod for Past Seasons */
+}
+
+.section-right .section-overlay {
+    background: rgba(70, 130, 180, 0.35); /* Steel Blue for Members */
+}
+
+/* Hover Effects */
+.sections-wrapper:has(.section-left:hover) .section-left {
+    width: 45%;
+}
+
+.sections-wrapper:has(.section-left:hover) .section-middle,
+.sections-wrapper:has(.section-left:hover) .section-right {
+    width: 27.5%;
+}
+
+.sections-wrapper:has(.section-middle:hover) .section-middle {
+    width: 45%;
+}
+
+.sections-wrapper:has(.section-middle:hover) .section-left,
+.sections-wrapper:has(.section-middle:hover) .section-right {
+    width: 27.5%;
+}
+
+.sections-wrapper:has(.section-right:hover) .section-right {
+    width: 45%;
+}
+
+.sections-wrapper:has(.section-right:hover) .section-left,
+.sections-wrapper:has(.section-right:hover) .section-middle {
+    width: 27.5%;
+}
+
+.section:hover .section-overlay {
+    opacity: 1;
+}
+
+.section:hover .section-content {
+    transform: scale(1.15);
+}
+
+/* Content Styles */
+.section-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: calc(100% - 100px);
+    padding: 2rem;
+    padding-bottom: 4rem;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-container {
+    margin-bottom: 2rem;
+}
+
+.section-icon {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.8));
+}
+
+.icon-placeholder {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.domain-icon {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+}
+
+.section-title {
+    font-size: 3rem;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.1;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    letter-spacing: 0.5em;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+}
+
+.section-description {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-align: center;
+    max-width: 300px;
+    opacity: 0.8;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+}
+
+/* Footer Styles */
+.section-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+}
+
+.section-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.section-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.section-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    transition: height 0.3s ease;
+}
+
+.section-left .section-bar {
+    background: linear-gradient(90deg, #228b22 0%, #1a6b1a 100%); /* Green gradient */
+}
+
+.section-middle .section-bar {
+    background: linear-gradient(90deg, #daa520 0%, #b8860b 100%); /* Gold gradient */
+}
+
+.section-right .section-bar {
+    background: linear-gradient(90deg, #4682b4 0%, #36648b 100%); /* Blue gradient */
+}
+
+.section:hover .section-bar {
+    height: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .main-title {
+        font-size: 4rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .icon-placeholder {
+        font-size: 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-title {
+        font-size: 2.5rem;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .sections-wrapper {
+        flex-direction: column;
+    }
+    
+    .section {
+        width: 100% !important;
+        height: 33.333%;
+    }
+    
+    .section:hover {
+        height: 45%;
+        width: 100% !important;
+    }
+    
+    .section-left:hover ~ .section-middle,
+    .section-left:hover ~ .section-right,
+    .section-middle:hover ~ .section-right {
+        height: 27.5%;
+        width: 100% !important;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .icon-placeholder {
+        font-size: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-title {
+        font-size: 1.8rem;
+        letter-spacing: 0.2em;
+    }
+    
+    .subtitle {
+        font-size: 0.7rem;
+        letter-spacing: 0.5em;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+    }
+    
+    .section-description {
+        font-size: 0.65rem;
+    }
+}

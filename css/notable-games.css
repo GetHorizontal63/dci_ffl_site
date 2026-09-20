@@ -1,0 +1,208 @@
+/* ===========================================
+   NOTABLE GAMES PAGE STYLES
+   =========================================== */
+
+.standings-section {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - 82px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* The section's own background is opaque black (division-page.css), so the
+   page background image goes on a ::before layer on top of it instead of on
+   <body> — matching the pattern used by h2h-matrix.css / game-search.css. */
+.standings-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../assets/images/background-13.png') center/cover fixed;
+    filter: grayscale(100%);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.standings-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+.search-container {
+    max-width: min(1800px, 94vw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem 3rem 1rem;
+    flex: 1;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: #fff;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0 auto 1.5rem auto;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(34, 139, 34, 0.3) 0%, rgba(34, 139, 34, 0.1) 100%);
+    border-left: 4px solid #228b22;
+    border-right: 4px solid #228b22;
+    max-width: 600px;
+}
+
+.ng-season-badge {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+.loading-message, .error-state, .ng-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1rem;
+}
+
+.error-state { color: #f87171; }
+
+/* Six cards: 3 across (2 rows) on wide screens, 2 across (3 rows) on
+   medium, 1 across (6 rows) on narrow. */
+.ng-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+@media (max-width: 1300px) {
+    .ng-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 800px) {
+    .ng-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+.ng-card {
+    background: rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(34, 139, 34, 0.5);
+    border-radius: 8px;
+    padding: 1.25rem;
+    min-width: 0;
+}
+
+.ng-card-title {
+    color: #228b22;
+    font-size: 1.3rem;
+    margin: 0 0 1rem 0;
+    text-align: center;
+    letter-spacing: 0.06em;
+}
+
+.ng-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Scoreboard chip: rank | two team lines | metric + week + details.
+   Every chip has the same three columns and the same height. */
+.ng-row {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 12rem) minmax(0, 1fr);
+    align-items: center;
+    column-gap: 1rem;
+    padding: 0.7rem 1rem 0.7rem 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.ng-row:hover,
+.ng-row:focus-visible {
+    background: rgba(34, 139, 34, 0.15);
+    border-color: #228b22;
+    outline: none;
+}
+
+.ng-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #228b22;
+    font-weight: 900;
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.ng-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.ng-side {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 4rem;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.ng-logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.ng-team {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ng-score {
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: bold;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.ng-score.win { color: #4ade80; }
+
+.ng-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.ng-metric {
+    color: #228b22;
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-align: right;
+}
+
+.ng-meta {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}

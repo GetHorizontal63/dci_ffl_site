@@ -1,0 +1,270 @@
+/* ===========================================
+   PLAY-OFF PICTURE PAGE
+   Panels, header bars, hairline rows and uppercase labels follow the Game Log
+   page (game-search.css) so the two read as one site.
+   =========================================== */
+
+.standings-section {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - 82px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* The section's own background is opaque black (division-page.css), so the
+   page background image goes on a ::before layer on top of it instead of on
+   <body> — matching the pattern used by h2h-matrix.css / game-search.css. */
+.standings-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../assets/images/background-11.png') center/cover fixed;
+    filter: grayscale(100%);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.standings-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+.search-container {
+    max-width: min(1800px, 94vw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem 3rem 1rem;
+    flex: 1;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: #fff;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0 auto 1.5rem auto;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(34, 139, 34, 0.3) 0%, rgba(34, 139, 34, 0.1) 100%);
+    border-left: 4px solid #228b22;
+    border-right: 4px solid #228b22;
+    max-width: 600px;
+}
+
+.loading-message, .error-state, .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1rem;
+}
+.error-state { color: #f87171; }
+
+/* ---- Info bar (same treatment as the Game Log filter box) ---- */
+.pp-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 3rem;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pp-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.pp-info-item.pp-info-wide { flex: 1; min-width: 300px; }
+
+.pp-info-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.pp-info-value { color: #fff; font-size: 0.95rem; }
+.pp-info-item.pp-info-wide .pp-info-value { color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; line-height: 1.4; }
+
+/* ---- Panels: flat translucent box + green header bar (Game Log results container) ---- */
+.pp-brackets-row {
+    display: grid;
+    grid-template-columns: 55fr 45fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pp-divisions-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pp-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    container-type: inline-size;
+    background: rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+.pp-brackets-row .pp-card,
+.pp-divisions-row .pp-card { margin-bottom: 0; }
+
+.pp-card-title {
+    margin: 0;
+    padding: 0 1.25rem;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    background: rgba(34, 139, 34, 0.3);
+    border-bottom: 2px solid #228b22;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.pp-standing-note,
+.pp-notes,
+.pp-empty-note {
+    margin: 0;
+    padding: 0.75rem 1.25rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+.pp-empty-note { text-align: center; padding: 2rem; }
+
+/* ---- Standings: fixed percentage columns shared by every row ----
+   # 5% | Team 45% | W-L, PD, PF, GB, Status 10% each. Everything is centered
+   except Team, which is left-aligned. */
+.pp-standing-list { display: flex; flex-direction: column; }
+
+.pp-standing-row,
+.pp-standing-head {
+    display: grid;
+    grid-template-columns: 5% 45% repeat(5, 10%);
+    align-items: center;
+    column-gap: 0;
+    padding: 0 1.25rem;
+}
+
+.pp-standing-row > *,
+.pp-standing-head > * { min-width: 0; text-align: center; }
+
+.pp-standing-head {
+    min-height: 34px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.pp-standing-head span:nth-child(2),
+.pp-standing-row .pp-standing-owner { text-align: left; }
+
+.pp-standing-row {
+    min-height: 52px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid transparent;
+    padding-left: calc(1.25rem - 3px);
+    transition: background 0.2s;
+}
+.pp-standing-row:hover { background: rgba(34, 139, 34, 0.1); }
+.pp-standing-row:last-child { border-bottom: none; }
+
+.pp-standing-row.pp-in { border-left-color: #228b22; }
+.pp-standing-row.pp-playin { border-left-color: #daa520; }
+.pp-standing-row.pp-out { border-left-color: rgba(255, 255, 255, 0.15); }
+.pp-standing-row.pp-cutoff-line { border-bottom: 2px solid rgba(255, 255, 255, 0.3); }
+
+.pp-standing-rank { color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; }
+.pp-standing-owner { color: #fff; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 0.5rem; }
+.pp-standing-record { color: rgba(255, 255, 255, 0.9); font-size: 0.9rem; white-space: nowrap; }
+.pp-standing-pd,
+.pp-standing-pf { color: rgba(255, 255, 255, 0.75); font-size: 0.85rem; white-space: nowrap; }
+.pp-standing-gb { color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; white-space: nowrap; }
+
+.pp-standing-badge {
+    justify-self: center;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.2rem 0.35rem;
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.45);
+}
+.pp-badge-in { background: rgba(34, 139, 34, 0.3); color: #4ade80; }
+.pp-badge-playin { background: rgba(218, 165, 32, 0.22); color: #f5c302; }
+
+@media (max-width: 600px) {
+    .pp-standing-row,
+    .pp-standing-head { grid-template-columns: 10% 34% 16% 20% 20%; }
+    .pp-standing-row > :nth-child(5), .pp-standing-row > :nth-child(6),
+    .pp-standing-head > :nth-child(5), .pp-standing-head > :nth-child(6) { display: none; }
+}
+
+/* Too narrow for the brackets to be legible: hide them and stack the tables. */
+@media (max-width: 1100px) {
+    .pp-brackets-row { display: none; }
+    .pp-divisions-row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 1400px) {
+    .pp-divisions-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- Completed-season lists (qualifiers / final standings) ---- */
+.pp-seed-group { padding: 1rem 0 0.25rem; }
+.pp-seed-group-title {
+    margin: 0 1.25rem 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.pp-seed-list, .pp-place-list { display: flex; flex-direction: column; }
+
+.pp-seed-row,
+.pp-place-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 48px;
+    padding: 0 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.2s;
+}
+.pp-seed-row:hover, .pp-place-row:hover { background: rgba(34, 139, 34, 0.1); }
+.pp-seed-list .pp-seed-row:last-child, .pp-place-list .pp-place-row:last-child { border-bottom: none; }
+
+.pp-seed-num, .pp-place-num { min-width: 1.75rem; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; }
+.pp-seed-owner, .pp-place-owner { color: #fff; font-weight: 600; min-width: 120px; }
+.pp-seed-reason { color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; }
+.pp-place-row.pp-podium { border-left: 3px solid #228b22; padding-left: calc(1.25rem - 3px); }
+.pp-place-row.pp-podium .pp-place-num { color: #4ade80; font-weight: 700; }
+
+.pp-standing-head span:nth-child(2) { padding-left: 0.5rem; }

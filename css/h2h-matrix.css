@@ -1,0 +1,417 @@
+/* ===========================================
+   H2H MATRIX PAGE STYLES
+   =========================================== */
+
+/* Background and Layout */
+.standings-section {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - 82px);
+    max-height: calc(100vh - 82px);
+    display: flex;
+    flex-direction: column;
+}
+
+.standings-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../assets/images/background-14.png') center/cover fixed;
+    filter: grayscale(100%);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.standings-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Search Container */
+.search-container {
+    max-width: min(1800px, 94vw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: #fff;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0.0rem auto 1rem auto;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(218, 165, 32, 0.3) 0%, rgba(218, 165, 32, 0.1) 100%);
+    border-left: 4px solid #daa520;
+    border-right: 4px solid #daa520;
+    max-width: 600px;
+}
+
+/* Filter Wrapper */
+.filter-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Filter Select */
+.filter-select {
+    width: 120px;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    text-align-last: center;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(218, 165, 32, 0.4);
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23daa520' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 10px;
+    transition: border-color 0.2s;
+    line-height: 2.5;
+}
+
+.filter-select:hover {
+    border-color: rgba(218, 165, 32, 0.6);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #daa520;
+}
+
+.filter-select option {
+    background: #000;
+    color: #fff;
+    padding: 0;
+}
+
+/* Filter Toggle */
+.filter-toggle {
+    display: flex;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(218, 165, 32, 0.4);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.toggle-btn {
+    padding: 0.7rem 1rem;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    width: 80px;
+}
+
+.toggle-btn:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.toggle-btn.active {
+    background: rgba(218, 165, 32, 0.3);
+    color: #fff;
+    border-left: 2px solid #daa520;
+    border-right: 2px solid #daa520;
+}
+
+.toggle-btn:first-child.active {
+    border-left: none;
+}
+
+.toggle-btn:last-child.active {
+    border-right: none;
+}
+
+/* Matrix Container */
+.matrix-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    backdrop-filter: none;
+    border: none;
+    border-radius: 0;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.loading-message {
+    text-align: center;
+    padding: 3rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1rem;
+}
+
+.heat-matrix-wrapper {
+    display: inline-block;
+}
+
+.heat-matrix-table {
+    border-collapse: separate;
+    border-spacing: 1px;
+    margin: 0 auto;
+}
+
+.heat-matrix-table th,
+.heat-matrix-table td {
+    padding: 2px;
+    text-align: center;
+    border: 1px solid rgba(218, 165, 32, 0.2);
+    position: relative;
+    font-size: 0.7rem;
+}
+
+.heat-matrix-table td,
+.heat-matrix-table thead th:not(.corner-cell) {
+    /* --cell is set by fitMatrix() (h2h-matrix.js) so the whole matrix fits the space available. */
+    width: var(--cell, 24px);
+    min-width: var(--cell, 24px);
+    max-width: var(--cell, 24px);
+    height: var(--cell, 24px);
+    padding: 0;
+}
+
+.heat-matrix-table th {
+    background: rgba(218, 165, 32, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-weight: 600;
+    color: #daa520;
+    white-space: nowrap;
+    font-size: 0.7rem;
+}
+
+.heat-matrix-table thead th:not(.corner-cell) {
+    height: 80px;
+    vertical-align: bottom;
+    padding: 2px;
+}
+
+.heat-matrix-table thead th:not(.corner-cell) > span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+}
+
+.heat-matrix-table th.corner-cell {
+    background: transparent !important;
+    border: none;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.heat-matrix-table th.row-header {
+    text-align: right;
+    padding: 0 6px 0 0;
+    line-height: 1;
+}
+
+/* Header text shrinks with the cells so rows can get as small as the window needs */
+.heat-matrix-table th.row-header,
+.heat-matrix-table thead th:not(.corner-cell) > span {
+    font-size: clamp(6px, calc(var(--cell, 24px) * 0.55), 11px);
+    line-height: 1;
+}
+
+.heat-matrix-cell {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;   /* not 'all': the size must change instantly when fitMatrix() resizes cells */
+    position: relative;
+    background: rgba(50, 50, 50, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.heat-matrix-cell:hover {
+    transform: scale(2);
+    box-shadow: 0 4px 12px rgba(218, 165, 32, 0.5);
+    z-index: 10;
+}
+
+.heat-matrix-cell.self-matchup {
+    background: rgba(128, 128, 128, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: not-allowed;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.heat-matrix-cell.no-matchup {
+    background: rgba(128, 128, 128, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: default;
+}
+
+.heat-matrix-cell .cell-wins,
+.heat-matrix-cell .cell-record {
+    display: none;
+}
+
+/* Heat matrix color scale - based on matchup frequency */
+.heat-matrix-cell[data-win-pct="0"] {
+    background: rgba(200, 200, 200, 0.3);
+}
+
+.heat-matrix-cell[data-win-pct="1"] {
+    background: rgba(144, 238, 144, 0.3);
+}
+
+.heat-matrix-cell[data-win-pct="2"] {
+    background: rgba(144, 238, 144, 0.4);
+}
+
+.heat-matrix-cell[data-win-pct="3"] {
+    background: rgba(144, 238, 144, 0.5);
+}
+
+.heat-matrix-cell[data-win-pct="4"] {
+    background: rgba(40, 167, 69, 0.5);
+}
+
+.heat-matrix-cell[data-win-pct="5"] {
+    background: rgba(40, 167, 69, 0.6);
+}
+
+.heat-matrix-cell[data-win-pct="6"] {
+    background: rgba(40, 167, 69, 0.7);
+}
+
+.heat-matrix-cell[data-win-pct="7"] {
+    background: rgba(40, 167, 69, 0.75);
+}
+
+.heat-matrix-cell[data-win-pct="8"] {
+    background: rgba(40, 167, 69, 0.8);
+}
+
+.heat-matrix-cell[data-win-pct="9"] {
+    background: rgba(40, 167, 69, 0.9);
+}
+
+.heat-matrix-cell[data-win-pct="10"] {
+    background: rgba(40, 167, 69, 1.0);
+}
+
+/* Heat matrix tooltip */
+.heat-matrix-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.95);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.375rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 1000;
+    border: 1px solid rgba(218, 165, 32, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    min-width: 120px;
+}
+
+.heat-matrix-tooltip strong {
+    font-size: 0.5625rem;
+    display: block;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.tooltip-label {
+    text-align: left;
+}
+
+.tooltip-value {
+    text-align: right;
+    font-weight: 600;
+}
+
+.heat-matrix-cell:hover .heat-matrix-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+.heat-matrix-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.95) transparent transparent transparent;
+}
+
+/* Heat matrix legend */
+.heat-matrix-legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(218, 165, 32, 0.2);
+}
+
+.legend-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.legend-gradient {
+    display: flex;
+    gap: 1px;
+}
+
+.legend-gradient-stop {
+    width: 15px;
+    height: 15px;
+    border: 1px solid rgba(218, 165, 32, 0.2);
+}
+
+/* Error and Empty States */
+.error-state,
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1rem;
+}

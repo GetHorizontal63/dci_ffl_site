@@ -1,0 +1,36 @@
+/* ===========================================
+   SITE-WIDE SCROLLBARS
+   One definition for every scrollable thing on every page: the page itself,
+   panels, tables, lists, modals and menus. Imported by division-page.css and
+   styles.css, which between them load on every page.
+   8px, dark track, rounded thumb. The thumb follows the section's colour:
+   green on Current Season pages, gold everywhere else (Past Seasons, Members).
+   Page-specific rules are more specific and still win.
+   =========================================== */
+
+:root {
+    --sb-thumb: rgba(218, 165, 32, 0.5);
+    --sb-thumb-hover: rgba(218, 165, 32, 0.7);
+    --sb-track: rgba(0, 0, 0, 0.3);
+    /* Native controls, including <select> dropdown popups and their
+       scrollbars, draw dark instead of the browser's light default. */
+    color-scheme: dark;
+}
+
+/* Current Season pages (identified by their nav) */
+:root:has(.current-season-nav) {
+    --sb-thumb: rgba(34, 139, 34, 0.5);
+    --sb-thumb-hover: rgba(34, 139, 34, 0.7);
+}
+
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: var(--sb-track); }
+*::-webkit-scrollbar-thumb { background: var(--sb-thumb); border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--sb-thumb-hover); }
+*::-webkit-scrollbar-corner { background: transparent; }
+
+/* Firefox has no ::-webkit-scrollbar. (Chrome 121+ ignores the ::-webkit rules
+   above once these are set, so they are limited to browsers without them.) */
+@supports not selector(::-webkit-scrollbar) {
+    * { scrollbar-width: thin; scrollbar-color: var(--sb-thumb) var(--sb-track); }
+}

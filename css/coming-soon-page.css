@@ -1,0 +1,274 @@
+/* Coming Soon Page Styles */
+
+/* Background configurations for different pages */
+body.bg-200-point {
+    background: url('../assets/images/background-12.png') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+body.bg-h2h-matrix {
+    background: url('../assets/images/background-15.png') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+body.bg-member-timeline {
+    background: url('../assets/images/background-16.png') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+body.bg-record-book {
+    background: url('../assets/images/background-10.png') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+body.bg-season-accolades {
+    background: url('../assets/images/background-14.png') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+body.bg-where-we-marched {
+    background: url('../assets/images/background-18.png') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+/* Page title styling */
+.page-title {
+    text-align: center;
+    color: #daa520;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    letter-spacing: 0.2em;
+}
+
+/* Coming soon container */
+.coming-soon-container {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.coming-soon-message {
+    font-size: 1.2rem;
+}
+
+.coming-soon-subtitle {
+    margin-top: 1rem;
+}
+
+/* Override for 200-point games page to match game-log width */
+body.bg-200-point .search-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+body.bg-200-point .results-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+}
+
+/* Record Book search container scrollable */
+body.bg-record-book .search-container {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 2rem 2rem 2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar for record book */
+body.bg-record-book .search-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+body.bg-record-book .search-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+body.bg-record-book .search-container::-webkit-scrollbar-thumb {
+    background: rgba(218, 165, 32, 0.5);
+    border-radius: 4px;
+}
+
+body.bg-record-book .search-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(218, 165, 32, 0.7);
+}
+
+/* ========================================
+   RECORD BOOK STYLES
+   ======================================== */
+
+/* Tab Navigation */
+.record-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid rgba(218, 165, 32, 0.3);
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    position: relative;
+    bottom: -2px;
+}
+
+.tab-button:hover {
+    color: rgba(218, 165, 32, 0.8);
+}
+
+.tab-button.active {
+    color: #daa520;
+    border-bottom-color: #daa520;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Records Category */
+.records-category {
+    margin-bottom: 3rem;
+}
+
+.category-title {
+    color: #daa520;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+}
+
+/* Records Grid */
+.records-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Record Card */
+.record-card {
+    background: rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(218, 165, 32, 0.5);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.record-card:hover {
+    border-color: rgba(218, 165, 32, 0.8);
+    box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
+}
+
+.record-title {
+    color: #daa520;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.record-subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+}
+
+/* Record Holders */
+.record-holders {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.record-holder,
+.record-runner-up {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.record-holder {
+    background: rgba(218, 165, 32, 0.1);
+    border: 1px solid rgba(218, 165, 32, 0.3);
+}
+
+.record-holder:hover,
+.record-runner-up:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.record-rank {
+    display: none;
+}
+
+.record-name {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.9);
+    margin-right: 1rem;
+}
+
+.record-value {
+    color: #daa520;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Loading state */
+.record-holder .record-name:contains("Loading"),
+.record-runner-up .record-name:contains("Loading") {
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .records-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .record-tabs {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .tab-button {
+        border-bottom: 1px solid rgba(218, 165, 32, 0.2);
+        padding: 0.75rem 1rem;
+    }
+    
+    .tab-button.active {
+        background: rgba(218, 165, 32, 0.1);
+    }
+    
+    .category-title {
+        font-size: 1.5rem;
+    }
+}

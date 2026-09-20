@@ -1,0 +1,56 @@
+/* ===========================================
+   FROZEN LAYOUT
+   Pages that show a title (and controls) above a long list: the page itself never
+   scrolls. Everything from the title down to the controls is fixed in place and only
+   the results area scrolls, inside itself.
+
+   Markup:  <body class="frozen-page">
+              <section class="standings-section">
+                <div class="search-container">
+                  <div class="frozen-head"> title, controls, tabs ... </div>
+                  <div class="frozen-body"> results ... </div>
+   Modifiers on <body>:
+     frozen-tall   the frozen part is tall, so give up (normal scrolling) on shorter windows
+   =========================================== */
+
+body.frozen-page {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+body.frozen-page .page-back-nav { flex: none; }
+
+body.frozen-page .standings-section {
+    flex: 1;
+    min-height: 0;
+}
+
+body.frozen-page .search-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding-bottom: 0;
+}
+
+body.frozen-page .frozen-head { flex: none; }
+
+body.frozen-page .frozen-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 1.5rem;
+}
+
+/* Short windows leave no room to freeze anything: fall back to a normal scrolling page. */
+@media (max-height: 700px) {
+    body.frozen-page { height: auto; overflow: visible; display: block; }
+    body.frozen-page .standings-section { min-height: calc(100vh - 82px); }
+    body.frozen-page .frozen-body { overflow: visible; }
+}
+@media (max-height: 820px) {
+    body.frozen-page.frozen-tall { height: auto; overflow: visible; display: block; }
+    body.frozen-page.frozen-tall .standings-section { min-height: calc(100vh - 82px); }
+    body.frozen-page.frozen-tall .frozen-body { overflow: visible; }
+}

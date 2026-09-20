@@ -1,0 +1,428 @@
+/* ===========================================
+   GAME LOG SEARCH PAGE - CUSTOM STYLES
+   Built to match division-page.css structure
+   =========================================== */
+
+/* Background image for standings section on game log page */
+.standings-section {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - 82px);
+    max-height: calc(100vh - 82px);
+    display: flex;
+    flex-direction: column;
+}
+
+.standings-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../assets/images/background-2.png') center/cover fixed;
+    filter: grayscale(100%);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.standings-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Search Container - matches standings-container width */
+.search-container {
+    max-width: min(1800px, 94vw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Filter Controls Box */
+.search-controls {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    flex-shrink: 0;
+}
+
+/* Filters Grid */
+.search-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 150px;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.filter-select {
+    padding: 0.7rem 2rem 0.7rem 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 10px;
+    transition: border-color 0.2s;
+}
+
+.filter-select:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #228b22;
+}
+
+.filter-select option {
+    background: #000;
+    color: #fff;
+}
+
+/* Results Count */
+.results-count {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.05em;
+}
+
+/* Results Container - matches standings-container width */
+.results-container {
+    background: rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Past seasons gold theme for results container */
+.past-seasons-nav ~ .page-back-nav ~ .section-content .results-container {
+    border: 1px solid rgba(218, 165, 32, 0.5);
+}
+
+.past-seasons-nav ~ .page-back-nav ~ .section-content .results-header {
+    background: rgba(218, 165, 32, 0.2);
+    border-bottom: 2px solid #daa520;
+}
+
+/* Results Header - matches standings-table thead */
+.results-header {
+    display: flex;
+    align-items: center;
+    background: rgba(34, 139, 34, 0.3);
+    border-bottom: 2px solid #228b22;
+    padding: 0;
+    min-height: 50px;
+    flex-shrink: 0;
+}
+
+.result-cell {
+    padding: 1rem 0.75rem;
+    text-align: left;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Results List with Scroll */
+.results-list {
+    /* flex:1 fills whatever vertical room the page actually has; a fixed
+       max-height here previously capped this at ~9 rows regardless of
+       viewport size, leaving a large empty gap below on anything taller
+       than that. overflow-y still scrolls if a page of results is
+       genuinely too tall for the viewport. */
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* Custom Scrollbar */
+.results-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.results-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.results-list::-webkit-scrollbar-thumb {
+    background: rgba(34, 139, 34, 0.5);
+    border-radius: 4px;
+}
+
+.results-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(34, 139, 34, 0.7);
+}
+
+/* Past seasons gold theme for scrollbar */
+.past-seasons-nav ~ .page-back-nav ~ .section-content .results-list::-webkit-scrollbar-thumb {
+    background: rgba(218, 165, 32, 0.5);
+}
+
+.past-seasons-nav ~ .page-back-nav ~ .section-content .results-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(218, 165, 32, 0.7);
+}
+
+/* Result Rows - matches standings table rows */
+.result-row {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 65px;
+    transition: background 0.2s;
+}
+
+.result-row:hover {
+    background: rgba(34, 139, 34, 0.1);
+}
+
+/* Past seasons gold theme for row hover */
+.past-seasons-nav ~ .page-back-nav ~ .section-content .result-row:hover {
+    background: rgba(218, 165, 32, 0.2);
+}
+
+.result-row .result-cell {
+    padding: 1rem 0.75rem;
+    font-weight: 400;
+    text-transform: none;
+    color: rgba(255, 255, 255, 0.9);
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+/* Columns: proportional grid tracks, so the table always spans the full container width
+   (no fixed widths, no dead space on the right). Team / Opponent get the most room. */
+.results-header,
+.result-row {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 0.8fr)   /* season */
+        minmax(0, 0.6fr)   /* week */
+        minmax(0, 0.9fr)   /* period */
+        0.75rem            /* spacer */
+        minmax(0, 2.6fr)   /* team */
+        minmax(0, 1fr)     /* score */
+        minmax(0, 0.7fr)   /* fp+ */
+        minmax(0, 0.7fr)   /* eff */
+        0.75rem            /* spacer */
+        minmax(0, 2.6fr)   /* opponent */
+        minmax(0, 1fr)     /* score */
+        minmax(0, 0.7fr)   /* fp+ */
+        minmax(0, 0.7fr)   /* eff */
+        minmax(0, 1fr);    /* details */
+    align-items: stretch;
+}
+.results-header { padding-right: 8px; }          /* matches the list's scrollbar gutter so columns line up */
+.results-list { scrollbar-gutter: stable; }
+
+.results-header .result-cell,
+.result-row .result-cell {
+    min-width: 0;
+    flex: none;
+    max-width: none;
+    justify-content: center;
+    text-align: center;
+}
+/* Team and Opponent read left-to-right beside their logo */
+.results-header .result-cell:nth-child(5),
+.result-row .result-cell:nth-child(5),
+.results-header .result-cell:nth-child(10),
+.result-row .result-cell:nth-child(10) { justify-content: flex-start; text-align: left; gap: 0.5rem; }
+/* spacer columns */
+.results-header .result-cell:nth-child(4),
+.result-row .result-cell:nth-child(4),
+.results-header .result-cell:nth-child(9),
+.result-row .result-cell:nth-child(9) { padding: 0; }
+
+/* Scrollbar spacer column */
+.results-header .result-cell.scrollbar-spacer {
+    flex: 0 0 8px;
+    min-width: 8px;
+    padding: 0;
+}
+
+/* Team Logo */
+.team-logo {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.team-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Details Link */
+.details-link {
+    display: inline-block;
+    padding: 0.4rem 0.75rem;
+    background: rgba(34, 139, 34, 0.2);
+    border: 1px solid rgba(34, 139, 34, 0.5);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+}
+
+.details-link:hover {
+    background: rgba(34, 139, 34, 0.4);
+    border-color: #228b22;
+}
+
+/* Past seasons gold theme for details link */
+.past-seasons-nav ~ .page-back-nav ~ .section-content .details-link {
+    background: rgba(218, 165, 32, 0.2);
+    border-color: rgba(218, 165, 32, 0.5);
+}
+
+.past-seasons-nav ~ .page-back-nav ~ .section-content .details-link:hover {
+    background: rgba(218, 165, 32, 0.4);
+    border-color: #daa520;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    min-height: 60px;
+}
+
+.pagination-btn {
+    padding: 0.6rem 1.2rem;
+    background: rgba(34, 139, 34, 0.2);
+    border: 1px solid rgba(34, 139, 34, 0.5);
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    min-width: 110px;
+}
+
+.pagination-btn:hover:not(.disabled) {
+    background: rgba(34, 139, 34, 0.4);
+    border-color: #228b22;
+}
+
+.pagination-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+/* Past seasons gold theme for pagination */
+.past-seasons-nav ~ .page-back-nav ~ .section-content .pagination-btn {
+    background: rgba(218, 165, 32, 0.2);
+    border-color: rgba(218, 165, 32, 0.5);
+}
+
+.past-seasons-nav ~ .page-back-nav ~ .section-content .pagination-btn:hover:not(.disabled) {
+    background: rgba(218, 165, 32, 0.4);
+    border-color: #daa520;
+}
+.page-indicator {
+    padding: 0.6rem 1.2rem;
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    min-width: 110px;
+    text-align: center;
+}
+
+/* Loading States */
+.loading-message,
+.empty-state,
+.error-state {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+}
+
+/* Score Highlights */
+.high-score {
+    color: #4ade80 !important;
+    font-weight: 700 !important;
+}
+
+.low-score {
+    color: #f87171 !important;
+    font-weight: 400 !important;
+}
+
+/* FP+ Colors */
+.fp-plus-good {
+    color: #4ade80 !important;
+    font-weight: 700;
+}
+
+.fp-plus-equal {
+    color: #ffffff !important;
+}
+
+.fp-plus-poor {
+    color: #f87171 !important;
+}
+
+/* Efficiency Colors */
+.efficiency-excellent {
+    color: #4ade80 !important;
+    font-weight: 700;
+}
+
+.efficiency-good {
+    color: #60a5fa !important;
+}
+
+.efficiency-average {
+    color: #fbbf24 !important;
+}
+
+.efficiency-poor {
+    color: #f87171 !important;
+}

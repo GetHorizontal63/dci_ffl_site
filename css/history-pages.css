@@ -1,0 +1,498 @@
+/* ===========================================
+   HISTORY PAGES: Standings History, Weekly Score Ranks, Manager History
+   Past Seasons gold theme; panel / header-bar / hairline-row language shared
+   with the Game Log (game-search.css) and Play-Off Picture pages.
+   =========================================== */
+
+body.hp-standings { --hp-bg: url('../assets/images/background-4.png'); }
+body.hp-weekly    { --hp-bg: url('../assets/images/background-5.png'); }
+body.hp-manager   { --hp-bg: url('../assets/images/background-6.png'); }
+body.hp-transactions { --hp-bg: url('../assets/images/background-8.png'); }
+body.hp-record { --hp-bg: url('../assets/images/background-10.png'); }
+body.hp-timeline { --hp-bg: url('../assets/images/background-16.png'); }
+
+.standings-section {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - 82px);
+    display: flex;
+    flex-direction: column;
+}
+
+.standings-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--hp-bg) center/cover fixed;
+    filter: grayscale(100%);
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.standings-section > * { position: relative; z-index: 1; }
+
+.search-container {
+    max-width: min(1800px, 94vw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem 3rem 1rem;
+    flex: 1;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: #fff;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0 auto 1.5rem auto;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(218, 165, 32, 0.3) 0%, rgba(218, 165, 32, 0.1) 100%);
+    border-left: 4px solid #daa520;
+    border-right: 4px solid #daa520;
+    max-width: 600px;
+}
+
+.hp-loading, .hp-error, .hp-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1rem;
+}
+.hp-error { color: #f87171; }
+
+/* ---- Controls bar (Game Log filter box) ---- */
+.hp-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.25rem 2.5rem;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.hp-field { display: flex; flex-direction: column; gap: 0.5rem; min-width: 200px; }
+.hp-field.hp-wide { flex: 1; min-width: 280px; }
+
+.hp-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.hp-value { color: #fff; font-size: 0.95rem; }
+.hp-field.hp-wide .hp-value { color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; line-height: 1.4; }
+
+.hp-select {
+    padding: 0.7rem 2rem 0.7rem 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 10px;
+    transition: border-color 0.2s;
+}
+.hp-select:hover { border-color: rgba(255, 255, 255, 0.4); }
+.hp-select:focus { outline: none; border-color: #daa520; }
+.hp-select option { background: #000; color: #fff; }
+
+/* ---- Panels ---- */
+.hp-grid { display: grid; gap: 1.5rem; margin-bottom: 1.5rem; }
+.hp-grid.hp-two { grid-template-columns: 1fr 1fr; align-items: start; }
+.hp-grid.hp-two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 1000px) { .hp-grid.hp-two { grid-template-columns: minmax(0, 1fr); } }
+
+.hp-panel {
+    min-width: 0;
+    background: rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+.hp-grid .hp-panel { margin-bottom: 0; }
+
+.hp-panel-title {
+    margin: 0;
+    padding: 0 1.25rem;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: rgba(218, 165, 32, 0.2);
+    border-bottom: 2px solid #daa520;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.hp-panel-title small { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.6); }
+
+.hp-note { margin: 0; padding: 0.75rem 1.25rem; color: rgba(255, 255, 255, 0.55); font-size: 0.8rem; line-height: 1.5; }
+.hp-scroll { overflow-x: auto; }
+
+/* ---- Tables: header row + hairline rows, everything centered except .hp-left ---- */
+.hp-table { width: 100%; border-collapse: collapse; }
+
+.hp-table th {
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.hp-table td {
+    padding: 0.8rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.hp-table .hp-left { text-align: left; }
+.hp-table th:first-child, .hp-table td:first-child { padding-left: 1.25rem; }
+.hp-table th:last-child, .hp-table td:last-child { padding-right: 1.25rem; }
+.hp-table tbody tr { transition: background 0.2s; }
+.hp-table tbody tr:hover { background: rgba(218, 165, 32, 0.1); }
+.hp-table tbody tr:last-child td { border-bottom: none; }
+.hp-table td.hp-name { color: #fff; font-weight: 600; }
+.hp-table td.hp-dim { color: rgba(255, 255, 255, 0.5); }
+.hp-table tr.hp-champ td { background: rgba(218, 165, 32, 0.12); }
+.hp-table tr.hp-champ td.hp-name { color: #f5c302; }
+
+.hp-pos { color: #4ade80 !important; }
+.hp-neg { color: #f87171 !important; }
+
+.hp-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+}
+.hp-badge.hp-gold { background: rgba(218, 165, 32, 0.22); color: #f5c302; }
+.hp-badge.hp-green { background: rgba(34, 139, 34, 0.3); color: #4ade80; }
+
+/* ---- Stat tiles (Manager History) ---- */
+.hp-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+.hp-tile { background: rgba(0, 0, 0, 0.55); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.hp-tile .hp-label { font-size: 0.7rem; }
+.hp-tile .hp-big { font-size: 1.5rem; font-weight: 700; color: #fff; }
+.hp-tile .hp-sub { font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); }
+
+/* ---- Score-rank heat grid ---- */
+.hp-heat td.hp-cell { padding: 0.55rem 0.1rem; min-width: 1.6rem; font-size: 0.8rem; }
+.hp-heat th.hp-rankhead { padding: 0.65rem 0.1rem; }
+
+/* ---- Quads / spot matrix: fixed layout, so every column and row is the same size ---- */
+.hp-matrix, .hp-heat { table-layout: fixed; min-width: 34rem; }
+.hp-matrix col.hp-col-name { width: 4.5rem; }
+.hp-matrix col.hp-col-total { width: 4.25rem; }
+.hp-heat col.hp-col-name { width: 6.5rem; }
+.hp-matrix th, .hp-matrix td, .hp-heat th, .hp-heat td { padding-left: 0; padding-right: 0; overflow: hidden; text-overflow: ellipsis; }
+.hp-matrix td.hp-mcell { height: 2.4rem; padding: 0; font-size: 0.85rem; font-weight: 600; color: #fff; }
+.hp-matrix tbody td, .hp-matrix tbody th { height: 2.4rem; }
+.hp-matrix th.hp-mhead { padding: 0.5rem 0; }
+.hp-matrix th.hp-corner { text-align: left; padding-left: 1.25rem; }
+.hp-matrix td.hp-spot { text-align: center; }
+.hp-matrix thead tr:first-child th { border-bottom: none; padding-bottom: 0.2rem; }
+.hp-matrix tbody tr:hover { background: none; }
+.hp-heat td.hp-name, .hp-heat th.hp-left { padding-left: 1.25rem; text-align: left; }
+.hp-heat td.hp-cell { height: 2.4rem; padding: 0; font-size: 0.8rem; }
+
+/* ---- Manager page: H2H panel takes the matrix panel's height and scrolls inside ---- */
+.hp-grid.hp-two.hp-eq { align-items: stretch; }
+.hp-h2h { display: flex; flex-direction: column; contain: size; }   /* contributes no height of its own */
+/* Site-standard scrollbar: 8px, dark track, gold thumb */
+.hp-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.hp-scroll::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+.hp-scroll::-webkit-scrollbar-thumb { background: rgba(218, 165, 32, 0.5); border-radius: 4px; }
+.hp-scroll::-webkit-scrollbar-thumb:hover { background: rgba(218, 165, 32, 0.7); }
+.hp-h2h-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.hp-h2h-scroll thead th { position: sticky; top: 0; z-index: 1; background: #0d0d0d; }
+.hp-h2h .hp-note { flex: none; }
+@media (max-width: 1000px) {
+    .hp-h2h { contain: none; max-height: 32rem; }
+}
+
+/* ---- Diverging bar chart (Schedule Luck Index) ---- */
+.hp-luck { display: flex; flex-direction: column; }
+.hp-luck .hp-bars { flex: 1; display: flex; flex-direction: column; }
+.hp-luck .hp-bar-row { flex: 1; height: auto; min-height: 2.4rem; }
+.hp-bars { padding: 0.75rem 1.25rem 0.25rem; }
+.hp-bar-row { display: grid; grid-template-columns: 6rem minmax(0, 1fr) 3rem; align-items: center; gap: 0.75rem; height: 2.4rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.hp-bar-row:last-child { border-bottom: none; }
+.hp-bar-name { color: #fff; font-weight: 600; font-size: 0.9rem; }
+.hp-bar-track { position: relative; height: 1.1rem; background: rgba(255, 255, 255, 0.04); }
+.hp-bar-track::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(218, 165, 32, 0.7); }
+.hp-bar { position: absolute; top: 0; bottom: 0; }
+.hp-bar-pos { background: rgba(74, 222, 128, 0.65); }
+.hp-bar-neg { background: rgba(248, 113, 113, 0.65); }
+.hp-bar-val { text-align: right; font-weight: 700; font-size: 0.9rem; }
+
+@media (max-width: 700px) {
+    .hp-field { min-width: 100%; }
+    .hp-table th, .hp-table td { padding-left: 0.5rem; padding-right: 0.5rem; }
+}
+
+/* ---- Bracket panels on the History pages: 55 / 45, stack when narrow ---- */
+.hp-brackets {
+    display: grid;
+    grid-template-columns: 55fr 45fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.hp-brackets .hp-panel { display: flex; flex-direction: column; margin-bottom: 0; }
+@media (max-width: 1100px) {
+    .hp-brackets { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- Transactions ---- */
+.hp-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.hp-tab {
+    padding: 0.7rem 1.4rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.hp-tab:hover { border-color: rgba(255, 255, 255, 0.4); color: #fff; }
+.hp-tab.active { border-color: #daa520; background: rgba(218, 165, 32, 0.2); color: #fff; }
+.hp-more { text-align: center; padding: 1rem; }
+
+.hp-grade {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.4);
+}
+.hp-grade-A { background: rgba(34, 139, 34, 0.35); color: #4ade80; }
+.hp-grade-B { background: rgba(132, 204, 22, 0.25); color: #a3e635; }
+.hp-grade-C { background: rgba(218, 165, 32, 0.22); color: #f5c302; }
+.hp-grade-D { background: rgba(249, 115, 22, 0.25); color: #fb923c; }
+.hp-grade-F { background: rgba(248, 113, 113, 0.25); color: #f87171; }
+
+.hp-table th small { display: block; margin-top: 0.15rem; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.03em; text-transform: none; color: rgba(255, 255, 255, 0.4); }
+.hp-moves td { vertical-align: middle; }
+.hp-moves td.hp-plist { white-space: normal; min-width: 15rem; }
+.hp-moves td.hp-when { color: rgba(255, 255, 255, 0.7); }
+.hp-player { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.15rem 0; }
+.hp-pname { color: #fff; font-weight: 600; }
+.hp-ppos { font-size: 0.62rem; color: rgba(255, 255, 255, 0.55); border: 1px solid rgba(255, 255, 255, 0.2); padding: 0 0.3rem; }
+.hp-ppts { margin-left: auto; padding-left: 1rem; color: rgba(255, 255, 255, 0.7); font-variant-numeric: tabular-nums; }
+
+.hp-trade-list { display: flex; align-items: flex-start; gap: 1.5rem; }
+.hp-trade-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.5rem; }
+.hp-trade-list .hp-panel { margin-bottom: 0; }
+.hp-trade-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255, 255, 255, 0.1); }
+@media (max-width: 600px) { .hp-trade-sides { grid-template-columns: minmax(0, 1fr); } }
+.hp-trade-side { background: rgba(0, 0, 0, 0.55); padding: 1rem 1.25rem; min-width: 0; display: flex; flex-direction: column; }
+/* The taller side sets the height; the shorter side's spacer grows so both Net lines sit at the bottom together. */
+.hp-trade-fill { flex: 1; min-height: 0.9rem; }
+.hp-trade-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; color: #fff; font-weight: 700; font-size: 1.05rem; }
+.hp-trade-side .hp-label { margin: 0.7rem 0 0.25rem; font-size: 0.68rem; }
+.hp-trade-net { display: flex; gap: 1.5rem; padding-top: 0.6rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); }
+.hp-trade-net b { font-size: 1rem; margin-left: 0.25rem; }
+.hp-trade-note { margin-top: 1rem; }
+
+/* Spacing inside the frozen header block (Transactions, Manager History, Standings History, ...) */
+.frozen-head > .page-title { margin-bottom: 1.5rem; }
+.frozen-head > .hp-controls { margin-bottom: 1.5rem; }
+
+/* ---- Record Book: same panel / header-bar / hairline language as the other history pages ---- */
+.hp-record .tab-content { display: none; }
+.hp-record .tab-content.active { display: block; }
+
+.hp-record .records-category {
+    min-width: 0;
+    margin-bottom: 1.5rem;
+    background: rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.hp-record .category-title {
+    margin: 0;
+    padding: 0 1.25rem;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    background: rgba(218, 165, 32, 0.2);
+    border-bottom: 2px solid #daa520;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.hp-record .records-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0;
+    padding: 0;
+}
+
+.hp-record .record-card {
+    background: rgba(0, 0, 0, 0.55);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1rem 1.25rem;
+    min-width: 0;
+}
+.hp-record .record-card:hover { transform: none; box-shadow: none; }
+
+.hp-record .record-title {
+    margin: 0 0 0.2rem 0;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: left;
+    letter-spacing: 0.02em;
+}
+
+.hp-record .record-subtitle {
+    margin: 0 0 0.6rem 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.72rem;
+    font-style: normal;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.hp-record .record-holders { display: flex; flex-direction: column; gap: 0; }
+
+.hp-record .record-holder,
+.hp-record .record-runner-up {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.55rem 0;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+}
+.hp-record .record-holders > :last-child { border-bottom: none; }
+.hp-record .record-holder:hover,
+.hp-record .record-runner-up:hover { background: rgba(218, 165, 32, 0.1); }
+
+.hp-record .record-rank {
+    display: inline-block;
+    width: 1.1rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+}
+
+.hp-record .record-name { flex: 1; min-width: 0; margin: 0; color: rgba(255, 255, 255, 0.85); font-size: 0.9rem; }
+.hp-record .record-holder .record-name { color: #fff; font-weight: 600; }
+.hp-record .record-value { color: #daa520; font-size: 0.95rem; font-weight: 700; white-space: nowrap; }
+
+/* ---- Member Timeline ---- */
+.hp-tl-row {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    align-items: center;
+    height: 2.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.hp-tl-row:hover:not(.hp-tl-axis) { background: rgba(218, 165, 32, 0.1); }
+.hp-tl-axis { height: 2.75rem; color: rgba(255, 255, 255, 0.5); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.hp-tl-name { padding-left: 1.25rem; color: #fff; font-weight: 600; font-size: 0.9rem; display: flex; align-items: baseline; gap: 0.5rem; }
+.hp-tl-axis .hp-tl-name { color: rgba(255, 255, 255, 0.5); font-weight: 600; font-size: 0.72rem; }
+.hp-tl-name.gone { color: rgba(255, 255, 255, 0.5); }
+.hp-tl-name small { color: rgba(255, 255, 255, 0.4); font-size: 0.72rem; font-weight: 400; }
+.hp-tl-years { display: grid; grid-template-columns: repeat(var(--years), 1fr); text-align: center; padding-right: 1.25rem; }
+.hp-tl-track {
+    position: relative;
+    height: 100%;
+    margin-right: 1.25rem;
+    /* faint line at every season boundary */
+    background: repeating-linear-gradient(90deg, transparent 0, transparent calc(100% / var(--years) - 1px), rgba(255, 255, 255, 0.06) calc(100% / var(--years) - 1px), rgba(255, 255, 255, 0.06) calc(100% / var(--years)));
+}
+.hp-tl-bar { position: absolute; top: 0.6rem; bottom: 0.6rem; border-radius: 2px; }
+.hp-tl-bar.on { background: rgba(218, 165, 32, 0.85); }
+.hp-tl-bar.off { background: rgba(255, 255, 255, 0.22); }
+.hp-key { display: inline-block; width: 0.75rem; height: 0.75rem; margin: 0 0.35rem 0 0.9rem; vertical-align: -1px; border-radius: 2px; }
+.hp-key.on { background: rgba(218, 165, 32, 0.85); }
+.hp-key.off { background: rgba(255, 255, 255, 0.22); }
+
+/* ---- Accolades (Manager History): shields in their own panel, season awards in another ---- */
+.hp-accolades { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; align-items: stretch; }
+.hp-accolades .hp-panel { margin-bottom: 0; }
+@media (max-width: 1100px) { .hp-accolades { grid-template-columns: minmax(0, 1fr); } }
+
+.hp-shields { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 1.5rem 2rem; padding: 1.5rem; }
+.hp-shield-card { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.hp-shield { height: 150px; width: auto; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.6)); transition: transform 0.2s ease; }
+.hp-shield-card:hover .hp-shield { transform: translateY(-3px); }
+.hp-shield-card figcaption { display: flex; flex-direction: column; align-items: center; line-height: 1.25; }
+.hp-shield-card figcaption b { color: #fff; font-size: 0.95rem; }
+.hp-shield-card figcaption span { color: rgba(255, 255, 255, 0.5); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.hp-acc-season { display: grid; grid-template-columns: 4rem minmax(0, 1fr); align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.hp-acc-season:last-child { border-bottom: none; }
+.hp-acc-season > b { color: #fff; font-size: 0.95rem; }
+.hp-acc-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+/* Timeline: the panel fills the page area; the title bar and year axis stay put and only the member rows scroll */
+body.hp-timeline .frozen-body { overflow: hidden; display: flex; flex-direction: column; }
+body.hp-timeline .frozen-body > .hp-panel { flex: 1; min-height: 0; margin-bottom: 0; display: flex; flex-direction: column; }
+.hp-tl { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.hp-tl-axis { flex: none; padding-right: 8px; }          /* same width as the rows' scrollbar gutter, so columns line up */
+.hp-tl-rows { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
+.hp-tl-rows > .hp-tl-row:last-child { border-bottom: none; }
+body.hp-timeline .frozen-body > .hp-panel > .hp-note { flex: none; }
+@media (max-height: 700px) {
+    body.hp-timeline .frozen-body { overflow: visible; display: block; }
+    .hp-tl-rows { overflow: visible; }
+}
