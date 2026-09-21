@@ -14,6 +14,32 @@
         Your browser does not support the video tag.
     </video>
     
+    <!-- Phone layout: shown instead of the three-panel desktop layout below (see css/mobile.css) -->
+    <main class="m-home">
+        <header class="m-home-head">
+            <img src="assets/logos/logo_2.png" alt="Grass Touchers Fantasy Football League" class="m-home-logo">
+            <h1>GRASS TOUCHERS</h1>
+            <p>FANTASY FOOTBALL LEAGUE</p>
+        </header>
+        <nav class="m-home-cards" aria-label="Sections">
+            <a href="pages/current-season.html" class="m-card m-card-green" style="--bg: url('assets/images/section-1.png')">
+                <span class="m-card-num">01</span>
+                <span class="m-card-text"><b>Current Season</b><small>2026 &middot; Standings, scores, matchups</small></span>
+                <span class="m-card-arrow" aria-hidden="true">&rsaquo;</span>
+            </a>
+            <a href="pages/past-seasons.html" class="m-card m-card-gold" style="--bg: url('assets/images/section-2.png')">
+                <span class="m-card-num">02</span>
+                <span class="m-card-text"><b>Past Seasons</b><small>Records, stats, championship history</small></span>
+                <span class="m-card-arrow" aria-hidden="true">&rsaquo;</span>
+            </a>
+            <a href="pages/coming-soon.html" class="m-card m-card-blue" style="--bg: url('assets/images/section-3.png')">
+                <span class="m-card-num">03</span>
+                <span class="m-card-text"><b>League Members</b><small>Manager profiles and career stats</small></span>
+                <span class="m-card-arrow" aria-hidden="true">&rsaquo;</span>
+            </a>
+        </nav>
+    </main>
+
     <div class="container">
         <!-- Watermark Logo -->
         <img src="assets/logos/watermark_grey.png" alt="League Logo" class="watermark-logo">

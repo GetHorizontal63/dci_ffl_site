@@ -208,64 +208,16 @@ async function loadRosterData(season, week) {
         // Store globally for access in other functions
         rosterData = data;
 
-        // After loading the roster data, try to add NFL opponent info
+        // Add each player's NFL opponent and game result from the nfl_games table.
         if (rosterData && rosterData.teams) {
             try {
-                // Try to load NFL game data for this week
-                let nflGames = await loadNFLGameData(season, week);
-                
-                // If we couldn't load NFL games, create mock data for testing Washington players
-                if (!nflGames || nflGames.length === 0) {
-                    console.warn("No NFL game data found - creating mock data for testing");
-                    nflGames = createMockNflGameData();
-                }
-                
-                if (nflGames) {
-                    console.log("Processing NFL games data:", nflGames);
-                    
-                    // Add opponent and outcome data to players
-                    rosterData.teams.forEach(team => {
-                        if (team.roster) {
-                            team.roster.forEach(player => {
-                                if (player.proTeam) {
-                                    // Normalize the player's team abbreviation to lowercase for comparison
-                                    let playerTeamAbbr = player.proTeam.toLowerCase();
-                                    
-                                    // Handle Washington team specifically - convert WAS to WSH
-                                    if (playerTeamAbbr === 'was') {
-                                        playerTeamAbbr = 'wsh';
-                                    }
-                                    
-                                    // Look for games where this player's team played
-                                    const teamGame = nflGames.find(game => {
-                                        return game.teamAbbr === playerTeamAbbr;
-                                    });
-                                    
-                                    if (teamGame) {
-                                        console.log(`Found NFL game for ${player.name} (${player.proTeam}):`, teamGame);
-                                        
-                                        // Set opponent and outcome
-                                        player.proOpponent = teamGame.opponentAbbr;
-                                        player.gameOutcome = teamGame.outcome;
-                                        player.teamScore = teamGame.teamScore;
-                                        player.opponentScore = teamGame.opponentScore;
-                                        player.scoreDisplay = teamGame.scoreDisplay;
-                                        
-                                        console.log(`Updated ${player.name}: opponent=${player.proOpponent}, outcome=${player.gameOutcome}, score=${player.scoreDisplay}`);
-                                    } else {
-                                        console.log(`No NFL game found for ${player.name} (${player.proTeam})`);
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
+                applyNflGames(rosterData, await LeagueDb.nflGames(season, week));
             } catch (error) {
                 console.error('Error loading NFL game data:', error);
                 // Continue without NFL game data
             }
         }
-        
+
         console.log('Loaded roster data with NFL info:', rosterData);
         return rosterData;
     } catch (error) {
@@ -274,247 +226,31 @@ async function loadRosterData(season, week) {
     }
 }
 
-// Create mock NFL game data for testing Washington players
-function createMockNflGameData() {
-    return [
-        {
-            teamAbbr: "was",
-            team: "Washington Commanders",
-            opponent: "Philadelphia Eagles",
-            opponentAbbr: "phi",
-            outcome: "W",
-            teamScore: 28,
-            opponentScore: 21,
-            scoreDisplay: "28-21"
-        },
-        {
-            teamAbbr: "phi",
-            team: "Philadelphia Eagles",
-            opponent: "Washington Commanders",
-            opponentAbbr: "was", 
-            outcome: "L",
-            teamScore: 21,
-            opponentScore: 28,
-            scoreDisplay: "21-28"
-        },
-        {
-            teamAbbr: "dal",
-            team: "Dallas Cowboys",
-            opponent: "New York Giants",
-            opponentAbbr: "nyg",
-            outcome: "W",
-            teamScore: 24,
-            opponentScore: 17,
-            scoreDisplay: "24-17"
-        }
-        // You can add more mock teams as needed
-    ];
-}
-
-async function loadNFLGameData(season, week) {
-    try {
-        // Try the ESPN game stats format first
-        let response = await fetch(`../data/espn_game_stats/${season}/nfl_data_${season}_week_${week}.json`);
-        
-        if (!response.ok) {
-            // Try different file name patterns as fallback
-            response = await fetch(`../data/nfl_games/${season}_week${week}.json`);
-        }
-        
-        // If that fails, try the yearly format
-        if (!response.ok) {
-            response = await fetch(`../data/nfl_games/${season}_nfl_games.json`);
-        }
-        
-        if (!response.ok) {
-            console.warn(`No NFL game data found for ${season} week ${week}`);
-            return null;
-        }
-        
-        const data = await response.json();
-        console.log(`Loaded NFL data for ${season} week ${week}:`, data);
-        
-        // Check if this is ESPN format data (has games array with boxscore structure)
-        if (data.games && Array.isArray(data.games)) {
-            return extractSimpleGameData(data.games);
-        }
-        
-        // Otherwise assume it's already in simple format
-        console.log(`Using simple format NFL games for ${season} week ${week}:`, data);
-        return data;
-    } catch (error) {
-        console.error(`Error loading NFL game data for ${season} week ${week}:`, error);
-        return null;
-    }
-}
-
-// Extract simple game data from ESPN boxscore format
-function extractSimpleGameData(espnGames) {
-    const simpleGames = [];
-    
-    // NFL teams mapping for consistent abbreviations
-    const nflTeams = [
-        { code: 'ARI', name: 'Arizona Cardinals' },
-        { code: 'ATL', name: 'Atlanta Falcons' },
-        { code: 'BAL', name: 'Baltimore Ravens' },
-        { code: 'BUF', name: 'Buffalo Bills' },
-        { code: 'CAR', name: 'Carolina Panthers' },
-        { code: 'CHI', name: 'Chicago Bears' },
-        { code: 'CIN', name: 'Cincinnati Bengals' },
-        { code: 'CLE', name: 'Cleveland Browns' },
-        { code: 'DAL', name: 'Dallas Cowboys' },
-        { code: 'DEN', name: 'Denver Broncos' },
-        { code: 'DET', name: 'Detroit Lions' },
-        { code: 'GB', name: 'Green Bay Packers' },
-        { code: 'HOU', name: 'Houston Texans' },
-        { code: 'IND', name: 'Indianapolis Colts' },
-        { code: 'JAX', name: 'Jacksonville Jaguars' },
-        { code: 'KC', name: 'Kansas City Chiefs' },
-        { code: 'LV', name: 'Las Vegas Raiders' },
-        { code: 'LAC', name: 'Los Angeles Chargers' },
-        { code: 'LAR', name: 'Los Angeles Rams' },
-        { code: 'MIA', name: 'Miami Dolphins' },
-        { code: 'MIN', name: 'Minnesota Vikings' },
-        { code: 'NE', name: 'New England Patriots' },
-        { code: 'NO', name: 'New Orleans Saints' },
-        { code: 'NYG', name: 'New York Giants' },
-        { code: 'NYJ', name: 'New York Jets' },
-        { code: 'PHI', name: 'Philadelphia Eagles' },
-        { code: 'PIT', name: 'Pittsburgh Steelers' },
-        { code: 'SF', name: 'San Francisco 49ers' },
-        { code: 'SEA', name: 'Seattle Seahawks' },
-        { code: 'TB', name: 'Tampa Bay Buccaneers' },
-        { code: 'TEN', name: 'Tennessee Titans' },
-        { code: 'WSH', name: 'Washington Commanders' }
-    ];
-    
-    espnGames.forEach(game => {
-        try {
-            if (!game.boxscore || !game.boxscore.teams || game.boxscore.teams.length < 2) {
-                console.warn('Game missing boxscore or teams data', game);
-                return;
-            }
-            
-            const boxscoreTeams = game.boxscore.teams;
-            const awayTeamBoxscore = boxscoreTeams.find(t => t.homeAway === 'away') || boxscoreTeams[0];
-            const homeTeamBoxscore = boxscoreTeams.find(t => t.homeAway === 'home') || boxscoreTeams[1];
-            
-            if (!homeTeamBoxscore || !awayTeamBoxscore) {
-                console.warn('Could not determine home or away team', game);
-                return;
-            }
-            
-            // Extract team codes and names
-            let homeTeamCode = '';
-            let awayTeamCode = '';
-            let homeTeamName = '';
-            let awayTeamName = '';
-            
-            // First try to get from team data
-            if (homeTeamBoxscore.team) {
-                homeTeamCode = homeTeamBoxscore.team.abbreviation || '';
-                homeTeamName = homeTeamBoxscore.team.displayName || homeTeamBoxscore.team.name || '';
-            }
-            
-            if (awayTeamBoxscore.team) {
-                awayTeamCode = awayTeamBoxscore.team.abbreviation || '';
-                awayTeamName = awayTeamBoxscore.team.displayName || awayTeamBoxscore.team.name || '';
-            }
-            
-            // If not found, try to determine from logo URL
-            if (!homeTeamCode && homeTeamBoxscore.team && homeTeamBoxscore.team.logo) {
-                const logoMatch = homeTeamBoxscore.team.logo.match(/\/([a-z]+)\.png$/i);
-                if (logoMatch) {
-                    homeTeamCode = logoMatch[1].toUpperCase();
-                }
-            }
-            
-            if (!awayTeamCode && awayTeamBoxscore.team && awayTeamBoxscore.team.logo) {
-                const logoMatch = awayTeamBoxscore.team.logo.match(/\/([a-z]+)\.png$/i);
-                if (logoMatch) {
-                    awayTeamCode = logoMatch[1].toUpperCase();
-                }
-            }
-            
-            // Handle Washington team specifically - ESPN sometimes uses WAS instead of WSH
-            if (homeTeamCode === 'WAS') homeTeamCode = 'WSH';
-            if (awayTeamCode === 'WAS') awayTeamCode = 'WSH';
-            
-            // Find team objects from our nflTeams array to get consistent names
-            const homeTeam = nflTeams.find(team => team.code === homeTeamCode) || 
-                            { code: homeTeamCode || 'UNK', name: homeTeamName || 'Unknown Team' };
-            
-            const awayTeam = nflTeams.find(team => team.code === awayTeamCode) || 
-                            { code: awayTeamCode || 'UNK', name: awayTeamName || 'Unknown Team' };
-            
-            // Get scores
-            let homeScore = 0;
-            let awayScore = 0;
-            
-            if (game.header && game.header.competitions && game.header.competitions.length > 0) {
-                const competition = game.header.competitions[0];
-                if (competition.competitors && competition.competitors.length >= 2) {
-                    const homeCompetitor = competition.competitors.find(c => 
-                        c.homeAway === 'home' || 
-                        (c.team && c.team.abbreviation === homeTeamCode));
-                    
-                    const awayCompetitor = competition.competitors.find(c => 
-                        c.homeAway === 'away' || 
-                        (c.team && c.team.abbreviation === awayTeamCode));
-                    
-                    if (homeCompetitor && homeCompetitor.score) {
-                        homeScore = parseInt(homeCompetitor.score) || 0;
-                    }
-                    
-                    if (awayCompetitor && awayCompetitor.score) {
-                        awayScore = parseInt(awayCompetitor.score) || 0;
-                    }
-                }
-            }
-            
-            // Determine outcomes
-            let homeOutcome = 'T';
-            let awayOutcome = 'T';
-            
-            if (homeScore > awayScore) {
-                homeOutcome = 'W';
-                awayOutcome = 'L';
-            } else if (awayScore > homeScore) {
-                homeOutcome = 'L';
-                awayOutcome = 'W';
-            }
-            
-            // Create game entries for both teams (this format makes it easier to look up opponents)
-            simpleGames.push({
-                teamAbbr: homeTeam.code.toLowerCase(),
-                team: homeTeam.name,
-                opponent: awayTeam.name,
-                opponentAbbr: awayTeam.code.toLowerCase(),
-                outcome: homeOutcome,
-                teamScore: homeScore,
-                opponentScore: awayScore,
-                scoreDisplay: `${homeScore}-${awayScore}`
-            });
-            
-            simpleGames.push({
-                teamAbbr: awayTeam.code.toLowerCase(),
-                team: awayTeam.name,
-                opponent: homeTeam.name,
-                opponentAbbr: homeTeam.code.toLowerCase(),
-                outcome: awayOutcome,
-                teamScore: awayScore,
-                opponentScore: homeScore,
-                scoreDisplay: `${awayScore}-${homeScore}`
-            });
-            
-        } catch (error) {
-            console.error('Error processing game data:', error, game);
-        }
+// Give every rostered player his NFL opponent and the game result from HIS team's point of view
+// (score shown as own-opponent, so 24-22 means his team scored 24). Byes, free agents and games
+// that have not been played get an opponent (if any) but no result.
+function applyNflGames(roster, games) {
+    const byTeam = new Map();
+    games.forEach(g => {
+        byTeam.set(g.home_team, { team: g.home_team, opponent: g.away_team, own: g.home_score, opp: g.away_score, home: true, completed: !!g.completed, status: g.status });
+        byTeam.set(g.away_team, { team: g.away_team, opponent: g.home_team, own: g.away_score, opp: g.home_score, home: false, completed: !!g.completed, status: g.status });
     });
-    
-    console.log('Extracted simple game data:', simpleGames);
-    return simpleGames;
+    roster.teams.forEach(team => {
+        (team.roster || []).forEach(player => {
+            const game = player.proTeam ? byTeam.get(String(player.proTeam).toUpperCase()) : null;
+            if (!game) return;                                    // bye week, free agent, or no data
+            player.proOpponent = game.opponent.toLowerCase();
+            player.proOpponentHome = !game.home;                  // is the OPPONENT the home side
+            player.gameStatus = game.status;
+            if (!game.completed || game.own == null || game.opp == null) return;   // not finished: no result yet
+            player.teamScore = game.own;
+            player.opponentScore = game.opp;
+            player.gameOutcome = game.own > game.opp ? 'W' : game.own < game.opp ? 'L' : 'T';
+            player.scoreDisplay = `${game.own}-${game.opp}`;
+        });
+    });
 }
+
 
 function renderGameDetails(game) {
     const container = document.querySelector('.game-details-container');

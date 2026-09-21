@@ -177,9 +177,9 @@
         },
         teamAbbreviations: async () => {
             const logoByOwner = {
-                Anthony: 'anthony', Brennan: 'brennan', Cubby: 'cubby', Devin: 'devin',
+                Anthony: 'anthony', Brennan: 'brennan', Caty: 'caty', Cubby: 'cubby', Devin: 'devin',
                 Gabe: 'gabe', Jeffrey: 'jeffrey', Jon: 'jon', Melanie: 'melanie',
-                Peter: 'peter', Sam: 'sam', Tucker: 'tucker'
+                Patric: 'patric', Peter: 'peter', Sam: 'sam', Tucker: 'tucker'
             };
             const owners = await query(`
                 SELECT o.owner_id, o.display_name,
@@ -199,6 +199,10 @@
                 }
             })) };
         },
+        // Every NFL game of one week (ESPN scoreboard, see python/scrape_nfl_games.py).
+        nflGames: (season, week) => query(`
+            SELECT game_id, status, completed, home_team, away_team, home_score, away_score
+            FROM nfl_games WHERE season = $season AND week = $week`, { $season: Number(season), $week: Number(week) }),
         rosterRules: () => query(`
             SELECT season AS Season, qb AS QB, rb AS RB, wr AS WR, te AS TE,
                    flex AS FLEX, dst AS "D/ST", k AS K, p AS P, hc AS HC,
@@ -248,9 +252,9 @@
                 LEFT JOIN owners o ON o.owner_id = cm.owner_id
                 GROUP BY c.corps_id ORDER BY c.corps_id
             `);
-            const result = { DCI_Corps: { World_Class: [], Open_Class: [] } };
+            const result = { DCI_Corps: { World_Class: [], Open_Class: [], All_Age: [] } };
             data.forEach(row => {
-                const group = row.class === 'World_Class' ? 'World_Class' : 'Open_Class';
+                const group = ['World_Class', 'All_Age'].includes(row.class) ? row.class : 'Open_Class';
                 result.DCI_Corps[group].push({
                     name: row.name,
                     abbreviation: row.abbreviation,
