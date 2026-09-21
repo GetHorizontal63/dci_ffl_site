@@ -23,7 +23,7 @@
 
     // ---- 2. table cards ----
     // Matrices, and the Game Details roster / analysis tables (side-by-side layouts) stay real tables.
-    const SKIP = '.hp-heat, .hp-matrix, .heat-matrix-table, .roster-table, .position-stats-table, .optimization-table';
+    const SKIP = '.hp-heat, .hp-matrix, .hp-rec-table, .heat-matrix-table, .roster-table, .position-stats-table, .optimization-table';
     function labelTables() {
         document.querySelectorAll('table').forEach(table => {
             if (table.matches(SKIP) || !table.tBodies.length) return;
