@@ -923,3 +923,164 @@ document.addEventListener('DOMContentLoaded', () => {
     let timer;
     window.addEventListener('resize', () => { clearTimeout(timer); timer = setTimeout(fitRecordOdds, 100); });
 });
+
+// ---------------------------------------------------------------------------
+// Scorigami: every final score the league has ever produced. The x axis is the LOSING team's score,
+// the y axis the WINNING team's, both rounded down to a whole number, from 50 to 250. A cell lights up
+// once a game has ended with exactly that pair; its colour says how many games have.
+// ---------------------------------------------------------------------------
+const SCORI_MIN = 50, SCORI_MAX = 250, SCORI_N = SCORI_MAX - SCORI_MIN + 1;
+const SCORI_COLORS = ['#4b4b4b', 'hsl(48, 88%, 52%)', 'hsl(28, 88%, 52%)', 'hsl(6, 82%, 50%)'];   // 0 (unused), 1, 2, 3+
+let scorigami = null;                       // { cells: Map('w-l' -> [games]), games }
+let scoriLayout = null;                     // canvas geometry, kept for the hover lookup
+
+async function renderScorigami() {
+    const target = document.getElementById('scorigami');
+    if (!target) return;
+    try {
+        const rows = await LeagueDb.scoreRows();
+        const cells = new Map();
+        let games = 0;
+        rows.forEach(g => {
+            // each game is listed once per team; take it from the lower owner id's side only
+            if (!(Number(g['Team Owner ID']) < Number(g['Opponent Owner ID']))) return;
+            if (!g.Team || !g.Opponent || g.Opponent.toLowerCase() === 'bye' || g.Team.toLowerCase() === 'bye') return;
+            const a = Number(g['Team Score']), b = Number(g['Opponent Score']);
+            if (Number.isNaN(a) || Number.isNaN(b) || a === b) return;
+            const win = Math.floor(Math.max(a, b)), lose = Math.floor(Math.min(a, b));
+            if (win < SCORI_MIN || win > SCORI_MAX || lose < SCORI_MIN) return;
+            const winnerIsTeam = a > b;
+            const key = `${win}-${lose}`;
+            if (!cells.has(key)) cells.set(key, []);
+            cells.get(key).push({
+                winner: winnerIsTeam ? g.Team : g.Opponent, loser: winnerIsTeam ? g.Opponent : g.Team,
+                win: Math.max(a, b), lose: Math.min(a, b), season: g.Season, week: g.Week, period: g['Season Period']
+            });
+            games += 1;
+        });
+        scorigami = { cells, games };
+        const possible = SCORI_N * (SCORI_N + 1) / 2;
+        target.innerHTML = `
+            <div class="hp-panel hp-scori">
+                <h2 class="hp-panel-title">Scorigami<small>${cells.size.toLocaleString()} different final scores in ${games.toLocaleString()} games</small></h2>
+                <div class="hp-scori-body">
+                    <canvas id="scori-canvas"></canvas>
+                    <div id="scori-tip" class="hp-scori-tip"></div>
+                </div>
+                <div class="hp-rec-legend">
+                    <span>Times that exact score has happened:</span>
+                    <span class="hp-scori-key" style="background:${SCORI_COLORS[1]}"></span><span>1</span>
+                    <span class="hp-scori-key" style="background:${SCORI_COLORS[2]}"></span><span>2</span>
+                    <span class="hp-scori-key" style="background:${SCORI_COLORS[3]}"></span><span>3+</span>
+                    <span class="hp-rec-key">${cells.size.toLocaleString()} of ${possible.toLocaleString()} possible scores reached (${(cells.size / possible * 100).toFixed(1)}%) &middot; scores rounded down &middot; hover a square for its games</span>
+                </div>
+            </div>`;
+        setupScoriCanvas();
+        fitScorigami();
+    } catch (error) {
+        console.error('Error building scorigami:', error);
+        target.innerHTML = '<div class="hp-panel"><div class="hp-error">Error loading data.</div></div>';
+    }
+}
+
+// Size the canvas to the space the tab has: square cells as large as fit (a phone keeps 3px cells and scrolls).
+function fitScorigami() {
+    const panel = document.querySelector('#scorigami .hp-scori');
+    const canvas = document.getElementById('scori-canvas');
+    const host = document.getElementById('hp-content');
+    if (!panel || !canvas || !host || panel.offsetParent === null) return;
+    const AX = 46, AY = 34;                                  // room for the axis numbers and titles
+    let cell = 3;
+    if (window.innerWidth > 800) {
+        const body = panel.querySelector('.hp-scori-body');
+        const used = panel.querySelector('.hp-panel-title').offsetHeight + panel.querySelector('.hp-rec-legend').offsetHeight
+            + parseFloat(getComputedStyle(panel).marginBottom) + 8
+            + parseFloat(getComputedStyle(body).paddingTop) + parseFloat(getComputedStyle(body).paddingBottom);
+        const availH = host.clientHeight - parseFloat(getComputedStyle(host).paddingBottom || 0) - used;
+        const availW = body.clientWidth - 24;
+        cell = Math.max(2, Math.min((availH - AY) / SCORI_N, (availW - AX) / SCORI_N));   // fractional: fill the space, snapped to device pixels below
+    }
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = Math.ceil(AX + SCORI_N * cell + 8), cssH = Math.ceil(AY + SCORI_N * cell + 6);
+    canvas.style.width = `${cssW}px`;
+    canvas.style.height = `${cssH}px`;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    scoriLayout = { cell, AX, AY, top: 6 };
+
+    // background: possible scores (winner >= loser) are faint squares, impossible ones are empty
+    ctx.clearRect(0, 0, cssW, cssH);
+    const gap = cell >= 5 ? 1 : 0;
+    const snap = v => Math.round(v * dpr) / dpr;                    // snap cell edges to device pixels so there are no seams
+    const colX = i => snap(AX + i * cell), rowY = j => snap(scoriLayout.top + j * cell);
+    for (let lose = SCORI_MIN; lose <= SCORI_MAX; lose++) {
+        for (let win = lose; win <= SCORI_MAX; win++) {
+            const games = scorigami.cells.get(`${win}-${lose}`);
+            const n = games ? Math.min(3, games.length) : 0;
+            ctx.fillStyle = n ? SCORI_COLORS[n] : 'rgba(255, 255, 255, 0.05)';
+            const i = lose - SCORI_MIN, j = SCORI_MAX - win;
+            ctx.fillRect(colX(i), rowY(j), colX(i + 1) - colX(i) - gap, rowY(j + 1) - rowY(j) - gap);
+        }
+    }
+    // axes: a label every 25, gridline ticks, and titles
+    ctx.font = '11px Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.textBaseline = 'middle';
+    for (let v = SCORI_MIN; v <= SCORI_MAX; v += 25) {
+        const y = scoriLayout.top + (SCORI_MAX - v) * cell + cell / 2;
+        ctx.textAlign = 'right';
+        ctx.fillText(String(v), AX - 6, y);
+        ctx.beginPath(); ctx.moveTo(AX - 3, y); ctx.lineTo(AX, y); ctx.stroke();
+        const x = AX + (v - SCORI_MIN) * cell + cell / 2;
+        ctx.textAlign = 'center';
+        ctx.fillText(String(v), x, scoriLayout.top + SCORI_N * cell + 14);
+        ctx.beginPath(); ctx.moveTo(x, scoriLayout.top + SCORI_N * cell); ctx.lineTo(x, scoriLayout.top + SCORI_N * cell + 3); ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.font = '600 11px Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('LOSING TEAM SCORE \u2192', AX + (SCORI_N * cell) / 2, scoriLayout.top + SCORI_N * cell + 28);
+    ctx.save();
+    ctx.translate(11, scoriLayout.top + (SCORI_N * cell) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('WINNING TEAM SCORE \u2192', 0, 0);
+    ctx.restore();
+}
+
+function setupScoriCanvas() {
+    const canvas = document.getElementById('scori-canvas');
+    const tip = document.getElementById('scori-tip');
+    if (!canvas || !tip) return;
+    const show = event => {
+        if (!scoriLayout || !scorigami) return;
+        const rect = canvas.getBoundingClientRect();
+        const px = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+        const py = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+        const lose = SCORI_MIN + Math.floor((px - scoriLayout.AX) / scoriLayout.cell);
+        const win = SCORI_MAX - Math.floor((py - scoriLayout.top) / scoriLayout.cell);
+        if (lose < SCORI_MIN || lose > SCORI_MAX || win < SCORI_MIN || win > SCORI_MAX || win < lose) { tip.style.display = 'none'; return; }
+        const games = (scorigami.cells.get(`${win}-${lose}`) || []).slice().sort((a, b) => b.season - a.season || b.week - a.week);
+        const lines = games.slice(0, 4).map(g => `<div>${g.winner} ${g.win.toFixed(2)} def. ${g.loser} ${g.lose.toFixed(2)} <i>${g.season} wk ${g.week}${g.period && g.period !== 'Regular' ? ` &middot; ${g.period}` : ''}</i></div>`).join('');
+        tip.innerHTML = `<b>${win} - ${lose}</b>${games.length
+            ? `<span>${games.length} game${games.length === 1 ? '' : 's'}</span>${lines}${games.length > 4 ? `<div><i>and ${games.length - 4} more</i></div>` : ''}`
+            : '<span>never happened (a scorigami waiting to happen)</span>'}`;
+        tip.style.display = 'block';
+        const body = canvas.parentElement.getBoundingClientRect();
+        const left = px + rect.left - body.left + 16;
+        tip.style.left = `${Math.min(left, body.width - tip.offsetWidth - 8)}px`;
+        tip.style.top = `${Math.max(4, py + rect.top - body.top - tip.offsetHeight - 10)}px`;
+    };
+    canvas.addEventListener('mousemove', show);
+    canvas.addEventListener('click', show);
+    canvas.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderScorigami();
+    document.querySelectorAll('.tab-button').forEach(b => b.addEventListener('click', () => setTimeout(fitScorigami, 0)));
+    let timer;
+    window.addEventListener('resize', () => { clearTimeout(timer); timer = setTimeout(fitScorigami, 100); });
+});

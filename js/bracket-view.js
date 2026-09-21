@@ -51,24 +51,25 @@ function gameCardHtml(topRow, bottomRow, tag) {
 // play-in) that decides who takes that seed.
 const BRACKET_PAIRS = [[1, 8], [4, 5], [2, 7], [3, 6]];
 
-function buildEightTeamTree(seeds) {
+function buildEightTeamTree(seeds, advance = 'Winner') {
     const slotRow = s => teamRowHtml(s.text, s.sub, s.placeholder);
     const round1 = BRACKET_PAIRS.map(([a, b]) => ({
         html: gameCardHtml(slotRow(seeds[a - 1]), slotRow(seeds[b - 1])),
         children: [seeds[a - 1].feeder, seeds[b - 1].feeder].filter(Boolean)
     }));
-    return finishTree(round1);
+    return finishTree(round1, advance);
 }
 
 // Semifinals and final from four round-1 games.
-function finishTree(round1) {
+// `advance` is 'Winner' for the Championship bracket and 'Loser' for the Gulag, where the loser moves on.
+function finishTree(round1, advance = 'Winner') {
     const later = (kids, a, b) => ({
         html: gameCardHtml(teamRowHtml(a, null, true), teamRowHtml(b, null, true)),
         children: kids
     });
-    const semi1 = later([round1[0], round1[1]], 'Winner of game 1', 'Winner of game 2');
-    const semi2 = later([round1[2], round1[3]], 'Winner of game 3', 'Winner of game 4');
-    return later([semi1, semi2], 'Winner of semi 1', 'Winner of semi 2');
+    const semi1 = later([round1[0], round1[1]], `${advance} of game 1`, `${advance} of game 2`);
+    const semi2 = later([round1[2], round1[3]], `${advance} of game 3`, `${advance} of game 4`);
+    return later([semi1, semi2], `${advance} of semi 1`, `${advance} of semi 2`);
 }
 
 // Projection for an in-progress season, built from the same per-division
@@ -175,7 +176,7 @@ function buildProjection(data) {
         : ['Round 1', 'Round 2', 'Final'];
     return {
         championship: { labels: labelsFor('Play-In: winner advances'), seeds: champSeeds, root: matchedRound1 ? finishTree(matchedRound1) : (champSeeds.length === 8 ? buildEightTeamTree(champSeeds) : null) },
-        elimination: { labels: ['Round 1', 'Round 2', 'Final'], seeds: elimSeeds, root: elimSeeds.length === 8 ? buildEightTeamTree(elimSeeds) : null },
+        elimination: { labels: ['Round 1', 'Round 2', 'Final (loser advances)'], seeds: elimSeeds, root: elimSeeds.length === 8 ? buildEightTeamTree(elimSeeds, 'Loser') : null },
         note: playins.length
             ? 'Projected from today\'s standings. Play-ins are cross-division (3v6 and 4v5 against the opposite division).' + matchNote + ' Bracket order follows 1v8 / 4v5 / 2v7 / 3v6 by overall auto seed; Gulag seeding (play-in losers first) is assumed.'
             : 'Projected from today\'s standings. Assumes standard 1v8 / 4v5 / 2v7 / 3v6 seeding.'
@@ -201,7 +202,7 @@ function renderBracket(name, bracketType, slots, ui = BRACKET_UI_DEFAULT) {
     roundNumbers.forEach(rn => {
         const games = byRound.get(rn).sort((a, b) => a.slotInRound - b.slotInRound);
         const nodes = games.map((slot, i) => ({
-            html: actualGameHtml(slot),
+            html: actualGameHtml(slot, bracketType === 'elimination'),
             children: rn === roundNumbers[0] ? [] : [previous[2 * i], previous[2 * i + 1]].filter(Boolean)
         }));
         previous = nodes;
@@ -209,13 +210,14 @@ function renderBracket(name, bracketType, slots, ui = BRACKET_UI_DEFAULT) {
 
     const labels = roundNumbers.map((rn, i) =>
         roundNumbers.length > 1 && i === roundNumbers.length - 1 ? 'Final' : `Round ${rn}`);
-    const label = `${name} Bracket${bracketType === 'elimination' ? ' (Elimination)' : ''}`;
+    const label = `${name} Bracket${bracketType === 'elimination' ? ' (Elimination) - the loser advances' : ''}`;
     return previous.length === 1
         ? renderBracketCard(label, previous[0], labels, ui)
         : renderSeedListCard(label, [], ui);
 }
 
-function actualGameHtml(slot) {
+// In the Gulag the LOSER of each game advances, so that side is the one highlighted.
+function actualGameHtml(slot, loserAdvances = false) {
     if (slot.note) {
         return gameCardHtml(teamRowHtml(slot.note, null, true), '').replace('pp-bracket-game"', 'pp-bracket-game br-note"');
     }
@@ -225,8 +227,11 @@ function actualGameHtml(slot) {
     const teamScore = Number(slot.teamScore);
     const opponentScore = Number(slot.opponentScore);
     const teamWon = teamScore > opponentScore;
+    const tied = teamScore === opponentScore;
+    const teamAdvances = !tied && (loserAdvances ? !teamWon : teamWon);
+    const opponentAdvances = !tied && !teamAdvances;
     const fmt = n => (Number.isNaN(n) ? '-' : n.toFixed(2));
     return gameCardHtml(
-        teamRowHtml(slot.team, fmt(teamScore), false, teamWon),
-        teamRowHtml(slot.opponent, fmt(opponentScore), false, !teamWon));
+        teamRowHtml(slot.team, fmt(teamScore), false, teamAdvances),
+        teamRowHtml(slot.opponent, fmt(opponentScore), false, opponentAdvances));
 }

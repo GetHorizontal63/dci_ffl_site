@@ -531,3 +531,28 @@ body.hp-timeline .frozen-body > .hp-panel > .hp-note { flex: none; }
     .hp-rec-table { margin: 0; }
     .hp-rec-table td { --rec-w: 2.7rem; --rec-h: 2.5rem; }
 }
+
+/* ---- Scorigami (Record Book tab) ---- */
+.hp-scori { margin-bottom: 0; }
+.hp-scori-body { position: relative; display: flex; justify-content: center; padding: 0.6rem 0.75rem 0.2rem; overflow-x: auto; }
+.hp-scori-body canvas { display: block; flex: none; cursor: crosshair; }
+.hp-scori-key { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 2px; }
+.hp-scori-tip {
+    display: none;
+    position: absolute;
+    z-index: 5;
+    min-width: 12rem;
+    max-width: 24rem;
+    padding: 0.6rem 0.8rem;
+    background: rgba(0, 0, 0, 0.92);
+    border: 1px solid rgba(218, 165, 32, 0.6);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    pointer-events: none;
+}
+.hp-scori-tip b { display: block; color: #f5c302; font-size: 1rem; margin-bottom: 0.15rem; }
+.hp-scori-tip span { display: block; color: rgba(255, 255, 255, 0.55); margin-bottom: 0.25rem; }
+.hp-scori-tip i { color: rgba(255, 255, 255, 0.5); font-style: normal; }
+@media (max-width: 800px) { .hp-scori-body { justify-content: flex-start; } }
