@@ -497,37 +497,37 @@ body.hp-timeline .frozen-body > .hp-panel > .hp-note { flex: none; }
     .hp-tl-rows { overflow: visible; }
 }
 
-/* ---- Record vs. playoffs matrix (Standings History) ---- */
+/* ---- Record vs. playoffs matrix (Record Book tab) ---- */
 .hp-rec { margin-top: 0; }
-.hp-rec .hp-scroll { padding: 1.1rem 1.25rem 0.4rem; }
-.hp-rec-table { border-collapse: separate; border-spacing: 3px; margin: 0 auto; }
+.hp-rec .hp-scroll { padding: 0.9rem 1.25rem 0.3rem; }
+.hp-rec-table { --rec-w: 3.1rem; --rec-h: 2.7rem; border-collapse: separate; border-spacing: 3px; margin: 0 auto; }
 .hp-rec-table th {
     color: rgba(255, 255, 255, 0.55);
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-align: center;
-    padding: 0.2rem 0.3rem;
+    padding: 0.15rem 0.3rem;
     white-space: nowrap;
 }
 .hp-rec-table thead tr:first-child th { letter-spacing: 0.1em; text-transform: uppercase; }
 .hp-rec-corner { text-align: right !important; padding-right: 0.8rem !important; text-transform: uppercase; letter-spacing: 0.1em; }
 .hp-rec-side { color: #fff !important; font-size: 0.85rem !important; text-align: center; width: 2.4rem; }
-.hp-rec-table td { width: 3.1rem; height: 2.7rem; min-width: 3.1rem; padding: 0; text-align: center; border-radius: 3px; }
+.hp-rec-table td { width: var(--rec-w); min-width: var(--rec-w); height: var(--rec-h); padding: 0; text-align: center; border-radius: 3px; }
 .hp-rec-cell { cursor: default; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); transition: transform 0.12s ease; }
 .hp-rec-cell:hover { transform: scale(1.12); box-shadow: 0 0 0 2px #fff; position: relative; z-index: 2; }
 .hp-rec-cell b { display: block; color: #fff; font-size: 1rem; line-height: 1.1; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55); }
 .hp-rec-cell span { display: block; color: rgba(255, 255, 255, 0.88); font-size: 0.6rem; line-height: 1.1; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55); }
+.hp-rec-tight .hp-rec-cell b { font-size: 0.82rem; line-height: 1; }
+.hp-rec-tight .hp-rec-cell span { font-size: 0.5rem; line-height: 1; }
 .hp-rec-empty { background: rgba(255, 255, 255, 0.04); }
-.hp-rec-void { background: none; }
-.hp-rec-legend { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.6rem 1.25rem 0.9rem; color: rgba(255, 255, 255, 0.6); font-size: 0.72rem; }
+.hp-rec-legend { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.4rem 1.25rem 0.7rem; color: rgba(255, 255, 255, 0.6); font-size: 0.72rem; }
 .hp-rec-bar { width: 9rem; height: 0.7rem; border-radius: 3px; background: linear-gradient(90deg, hsl(0, 62%, 34%), hsl(62, 62%, 34%), hsl(125, 62%, 34%)); }
-.hp-rec-key { flex-basis: 100%; text-align: center; margin-top: 0.15rem; }
+.hp-rec-key { margin-left: 1rem; }
 .hp-rec-key b { color: #fff; }
-.hp-rec-key i { color: #fff; font-style: normal; }
 
 @media (max-width: 800px) {
     .hp-rec .hp-scroll { padding: 0.9rem 0.6rem 0.3rem; overflow-x: auto; }
     .hp-rec-table { margin: 0; }
-    .hp-rec-table td { width: 2.7rem; min-width: 2.7rem; height: 2.5rem; }
+    .hp-rec-table td { --rec-w: 2.7rem; --rec-h: 2.5rem; }
 }

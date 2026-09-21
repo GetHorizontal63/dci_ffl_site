@@ -788,47 +788,69 @@ async function calculateTransactionAndLuckRecords() {
 }
 
 // ---------------------------------------------------------------------------
-// Record vs. playoffs: wins down the side, losses across the top. Each cell counts the
-// team-seasons (all completed seasons) that finished with exactly that record, and its
-// colour is the share of those teams that made the Championship bracket.
+// Record vs. playoffs (cumulative): wins down the side, losses across the top. Every team is
+// followed through every week of every completed season, and each record it passes through
+// counts once (a team is 0-0, then 1-0, then 1-1, ...). A cell's number is how many team-seasons
+// have ever been at that record; its colour is the share of them that went on to make the
+// Championship bracket.
 // ---------------------------------------------------------------------------
-function recordOddsPanel(seasonRows) {
-    const cells = new Map();                                    // 'w-l' -> { n, made }
-    let teamSeasons = 0;
-    seasonRows.filter(r => r.place != null).forEach(r => {      // completed seasons only
-        const key = `${r.wins}-${r.losses}`;
-        const cell = cells.get(key) || { n: 0, made: 0 };
-        cell.n += 1;
-        if (r.bracketType === 'championship') cell.made += 1;
-        cells.set(key, cell);
-        teamSeasons += 1;
-    });
-    if (!teamSeasons) return '';
+function recordOddsPanel(teamRows, scoreRows) {
+    const finished = new Set(teamRows.filter(r => r.place != null).map(r => r.season));
+    const madeBracket = new Map(teamRows.filter(r => r.place != null)
+        .map(r => [`${r.season}|${r.owner}`, r.bracketType === 'championship']));
 
-    const all = seasonRows.filter(r => r.place != null);
-    const maxWins = Math.max(...all.map(r => r.wins));
-    const maxLosses = Math.max(...all.map(r => r.losses));
-    const maxGames = Math.max(...all.map(r => r.wins + r.losses));
+    // one list of results per team-season, in week order
+    const paths = new Map();
+    scoreRows.forEach(g => {
+        if (g['Season Period'] !== 'Regular' || !finished.has(g.Season) || !g.Team || !g.Opponent) return;
+        if (g.Team.toLowerCase() === 'bye' || g.Opponent.toLowerCase() === 'bye') return;
+        const us = Number(g['Team Score']), them = Number(g['Opponent Score']);
+        if (Number.isNaN(us) || Number.isNaN(them)) return;
+        const key = `${g.Season}|${g.Team}`;
+        if (!paths.has(key)) paths.set(key, []);
+        paths.get(key).push({ week: g.Week, win: us > them, loss: us < them });
+    });
+
+    const cells = new Map();                                     // 'w-l' -> { n, made }
+    let maxWins = 0, maxLosses = 0;
+    paths.forEach((games, key) => {
+        games.sort((a, b) => a.week - b.week);
+        let w = 0, l = 0;
+        const seen = new Set(['0-0']);
+        games.forEach(g => { if (g.win) w += 1; else if (g.loss) l += 1; seen.add(`${w}-${l}`); });
+        const made = madeBracket.get(key) === true;
+        seen.forEach(rec => {
+            const cell = cells.get(rec) || { n: 0, made: 0 };
+            cell.n += 1;
+            if (made) cell.made += 1;
+            cells.set(rec, cell);
+            const [rw, rl] = rec.split('-').map(Number);
+            maxWins = Math.max(maxWins, rw);
+            maxLosses = Math.max(maxLosses, rl);
+        });
+    });
+    if (!paths.size) return '';
+
     const losses = Array.from({ length: maxLosses + 1 }, (_, i) => i);
     const wins = Array.from({ length: maxWins + 1 }, (_, i) => maxWins - i);   // most wins at the top
+    const shade = share => `hsl(${Math.round(share * 125)}, 62%, 34%)`;          // red (0%) -> amber -> green (100%)
 
-    const shade = share => `hsl(${Math.round(share * 125)}, 62%, 34%)`;      // red (0%) -> amber -> green (100%)
     const body = wins.map(w => `
         <tr>
             <th class="hp-rec-side">${w}</th>
             ${losses.map(l => {
                 const cell = cells.get(`${w}-${l}`);
-                if (!cell) return `<td class="${w + l > maxGames ? 'hp-rec-void' : 'hp-rec-empty'}"></td>`;
+                if (!cell) return '<td class="hp-rec-empty"></td>';
                 const share = cell.made / cell.n;
                 const pct = Math.round(share * 100);
-                const tip = `${w}-${l}: ${cell.n} team-season${cell.n === 1 ? '' : 's'}, ${cell.made} made the Championship bracket (${pct}%)`;
+                const tip = `${w}-${l}: reached ${cell.n} time${cell.n === 1 ? '' : 's'}; ${cell.made} of those teams made the Championship bracket (${pct}%)`;
                 return `<td class="hp-rec-cell" style="background:${shade(share)}" title="${tip}"><b>${cell.n}</b><span>${pct}%</span></td>`;
             }).join('')}
         </tr>`).join('');
 
     return `
         <div class="hp-panel hp-rec">
-            <h2 class="hp-panel-title">Record vs. Playoffs<small>every completed season &middot; ${teamSeasons} team-seasons</small></h2>
+            <h2 class="hp-panel-title">Record vs. Playoffs<small>every team, every week, every completed season</small></h2>
             <div class="hp-scroll">
                 <table class="hp-rec-table">
                     <thead>
@@ -839,25 +861,65 @@ function recordOddsPanel(seasonRows) {
                 </table>
             </div>
             <div class="hp-rec-legend">
-                <span>0% made the bracket</span>
+                <span>Share that made the Championship bracket:</span><span>0%</span>
                 <span class="hp-rec-bar"></span>
                 <span>100%</span>
-                <span class="hp-rec-key"><b>N</b> teams with that record &middot; <i>%</i> of them in the Championship bracket</span>
+                <span class="hp-rec-key"><b>N</b> = teams that reached the record</span>
             </div>
-            <p class="hp-note">Regular-season record only; ties are not shown, so a team's record counts by its wins and losses.</p>
         </div>`;
 }
 
-// The matrix is cumulative (every completed season), so it lives here rather than on the
-// season-by-season Standings History page.
+// On a desktop-size window the matrix is sized to fill the tab so it never needs scrolling; on phones
+// it keeps a fixed cell size and scrolls sideways.
+function fitRecordOdds() {
+    const panel = document.querySelector('#record-odds .hp-rec');
+    const table = panel && panel.querySelector('.hp-rec-table');
+    const host = document.getElementById('hp-content');
+    if (!table || !host || !host.clientHeight || panel.offsetParent === null) return;
+    if (window.innerWidth <= 800) {
+        table.style.removeProperty('--rec-w');
+        table.style.removeProperty('--rec-h');
+        table.classList.remove('hp-rec-tight');
+        return;
+    }
+    const rows = table.tBodies[0].rows.length;
+    const cols = table.tBodies[0].rows[0].cells.length - 1;
+    const hostStyle = getComputedStyle(host);
+    const availH = host.clientHeight - parseFloat(hostStyle.paddingBottom || 0);
+    const scroll = panel.querySelector('.hp-scroll');
+    const scrollStyle = getComputedStyle(scroll);
+    const used = panel.querySelector('.hp-panel-title').offsetHeight
+        + panel.querySelector('.hp-rec-legend').offsetHeight
+        + table.tHead.offsetHeight
+        + parseFloat(scrollStyle.paddingTop) + parseFloat(scrollStyle.paddingBottom)
+        + parseFloat(getComputedStyle(panel).marginBottom) + 8;      // panel gap below it, borders, table edge spacing
+    const spacing = 3;
+    const cellH = Math.max(18, Math.floor((availH - used) / rows) - spacing);
+    const sideW = table.querySelector('.hp-rec-side').offsetWidth || 40;
+    const availW = scroll.clientWidth - parseFloat(scrollStyle.paddingLeft) - parseFloat(scrollStyle.paddingRight) - sideW;
+    const cellW = Math.max(24, Math.min(Math.floor(cellH * 1.5), Math.floor(availW / cols) - spacing));
+    table.style.setProperty('--rec-h', `${cellH}px`);
+    table.style.setProperty('--rec-w', `${cellW}px`);
+    table.classList.toggle('hp-rec-tight', cellH < 34);
+}
+
+// The matrix is cumulative (all teams, all weeks, all completed seasons), so it lives here rather than on
+// the season-by-season Standings History page.
 async function renderRecordOdds() {
     const target = document.getElementById('record-odds');
     if (!target) return;
     try {
-        target.innerHTML = recordOddsPanel(await LeagueDb.seasonTeamRows()) || '<div class="hp-panel"><div class="hp-empty">No completed seasons yet.</div></div>';
+        const [teamRows, scoreRows] = await Promise.all([LeagueDb.seasonTeamRows(), LeagueDb.scoreRows()]);
+        target.innerHTML = recordOddsPanel(teamRows, scoreRows) || '<div class="hp-panel"><div class="hp-empty">No completed seasons yet.</div></div>';
+        fitRecordOdds();
     } catch (error) {
         console.error('Error building record odds:', error);
         target.innerHTML = '<div class="hp-panel"><div class="hp-error">Error loading data.</div></div>';
     }
 }
-document.addEventListener('DOMContentLoaded', renderRecordOdds);
+document.addEventListener('DOMContentLoaded', () => {
+    renderRecordOdds();
+    document.querySelectorAll('.tab-button').forEach(b => b.addEventListener('click', () => setTimeout(fitRecordOdds, 0)));
+    let timer;
+    window.addEventListener('resize', () => { clearTimeout(timer); timer = setTimeout(fitRecordOdds, 100); });
+});
