@@ -498,7 +498,7 @@ body.hp-timeline .frozen-body > .hp-panel > .hp-note { flex: none; }
 }
 
 /* ---- Record vs. playoffs matrix (Standings History) ---- */
-.hp-rec { margin-top: 1.5rem; }
+.hp-rec { margin-top: 0; }
 .hp-rec .hp-scroll { padding: 1.1rem 1.25rem 0.4rem; }
 .hp-rec-table { border-collapse: separate; border-spacing: 3px; margin: 0 auto; }
 .hp-rec-table th {

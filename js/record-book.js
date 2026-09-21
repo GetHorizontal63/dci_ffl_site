@@ -786,3 +786,78 @@ async function calculateTransactionAndLuckRecords() {
         console.error('Error calculating transaction records:', error);
     }
 }
+
+// ---------------------------------------------------------------------------
+// Record vs. playoffs: wins down the side, losses across the top. Each cell counts the
+// team-seasons (all completed seasons) that finished with exactly that record, and its
+// colour is the share of those teams that made the Championship bracket.
+// ---------------------------------------------------------------------------
+function recordOddsPanel(seasonRows) {
+    const cells = new Map();                                    // 'w-l' -> { n, made }
+    let teamSeasons = 0;
+    seasonRows.filter(r => r.place != null).forEach(r => {      // completed seasons only
+        const key = `${r.wins}-${r.losses}`;
+        const cell = cells.get(key) || { n: 0, made: 0 };
+        cell.n += 1;
+        if (r.bracketType === 'championship') cell.made += 1;
+        cells.set(key, cell);
+        teamSeasons += 1;
+    });
+    if (!teamSeasons) return '';
+
+    const all = seasonRows.filter(r => r.place != null);
+    const maxWins = Math.max(...all.map(r => r.wins));
+    const maxLosses = Math.max(...all.map(r => r.losses));
+    const maxGames = Math.max(...all.map(r => r.wins + r.losses));
+    const losses = Array.from({ length: maxLosses + 1 }, (_, i) => i);
+    const wins = Array.from({ length: maxWins + 1 }, (_, i) => maxWins - i);   // most wins at the top
+
+    const shade = share => `hsl(${Math.round(share * 125)}, 62%, 34%)`;      // red (0%) -> amber -> green (100%)
+    const body = wins.map(w => `
+        <tr>
+            <th class="hp-rec-side">${w}</th>
+            ${losses.map(l => {
+                const cell = cells.get(`${w}-${l}`);
+                if (!cell) return `<td class="${w + l > maxGames ? 'hp-rec-void' : 'hp-rec-empty'}"></td>`;
+                const share = cell.made / cell.n;
+                const pct = Math.round(share * 100);
+                const tip = `${w}-${l}: ${cell.n} team-season${cell.n === 1 ? '' : 's'}, ${cell.made} made the Championship bracket (${pct}%)`;
+                return `<td class="hp-rec-cell" style="background:${shade(share)}" title="${tip}"><b>${cell.n}</b><span>${pct}%</span></td>`;
+            }).join('')}
+        </tr>`).join('');
+
+    return `
+        <div class="hp-panel hp-rec">
+            <h2 class="hp-panel-title">Record vs. Playoffs<small>every completed season &middot; ${teamSeasons} team-seasons</small></h2>
+            <div class="hp-scroll">
+                <table class="hp-rec-table">
+                    <thead>
+                        <tr><th class="hp-rec-corner" rowspan="2">Wins &darr;</th><th colspan="${losses.length}">Losses &rarr;</th></tr>
+                        <tr>${losses.map(l => `<th>${l}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>${body}</tbody>
+                </table>
+            </div>
+            <div class="hp-rec-legend">
+                <span>0% made the bracket</span>
+                <span class="hp-rec-bar"></span>
+                <span>100%</span>
+                <span class="hp-rec-key"><b>N</b> teams with that record &middot; <i>%</i> of them in the Championship bracket</span>
+            </div>
+            <p class="hp-note">Regular-season record only; ties are not shown, so a team's record counts by its wins and losses.</p>
+        </div>`;
+}
+
+// The matrix is cumulative (every completed season), so it lives here rather than on the
+// season-by-season Standings History page.
+async function renderRecordOdds() {
+    const target = document.getElementById('record-odds');
+    if (!target) return;
+    try {
+        target.innerHTML = recordOddsPanel(await LeagueDb.seasonTeamRows()) || '<div class="hp-panel"><div class="hp-empty">No completed seasons yet.</div></div>';
+    } catch (error) {
+        console.error('Error building record odds:', error);
+        target.innerHTML = '<div class="hp-panel"><div class="hp-error">Error loading data.</div></div>';
+    }
+}
+document.addEventListener('DOMContentLoaded', renderRecordOdds);
