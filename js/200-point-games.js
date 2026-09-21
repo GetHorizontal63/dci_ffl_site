@@ -149,6 +149,7 @@ function displayGames() {
 }
 
 function fitGamesPerPage() {
+    if (window.innerWidth <= 800) return 8;      // phones: the page scrolls, so a plain page size
     const list = document.getElementById('high-score-results');
     const row = list && list.querySelector('.result-row');
     if (!row) return gamesPerPage;
@@ -162,6 +163,7 @@ function watchListHeight() {
     if (!list || !window.ResizeObserver) return;
     new ResizeObserver(() => {
         const h = list.clientHeight;
+        if (window.innerWidth <= 800) return;
         if (allGames.length && Math.abs(h - lastListHeight) > 2) {
             lastListHeight = h;
             displayGames();

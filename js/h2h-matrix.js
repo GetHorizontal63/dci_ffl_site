@@ -219,9 +219,12 @@ function fitMatrix() {
     const availH = container.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     const setCell = px => wrapper.style.setProperty('--cell', `${px}px`);
     const fits = () => wrapper.offsetHeight <= availH && wrapper.offsetWidth <= availW;
-    // Largest cell size (8-64px) at which the matrix still fits.
-    let best = 8;
-    for (let cell = 64; cell >= 8; cell--) {
+    // Largest cell size at which the matrix still fits. On a phone a fitted matrix would be
+    // unreadably small, so it keeps 22px cells and the container scrolls instead.
+    const minCell = window.innerWidth <= 800 ? 22 : 8;
+    container.style.overflow = window.innerWidth <= 800 ? 'auto' : '';
+    let best = minCell;
+    for (let cell = 64; cell >= minCell; cell--) {
         setCell(cell);
         if (fits()) { best = cell; break; }
     }

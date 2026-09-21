@@ -74,7 +74,7 @@ function renderTimeline(members, years, latestSeason) {
             <div class="hp-tl">
                 <div class="hp-tl-row hp-tl-axis">
                     <div class="hp-tl-name">Member</div>
-                    <div class="hp-tl-years" style="--years: ${totalYears}">${years.map(y => `<span>${y}</span>`).join('')}</div>
+                    <div class="hp-tl-years" style="--years: ${totalYears}">${years.map(y => `<span><i>20</i>${String(y).slice(2)}</span>`).join('')}</div>
                 </div>
                 <div class="hp-tl-rows">${rows}</div>
             </div>
