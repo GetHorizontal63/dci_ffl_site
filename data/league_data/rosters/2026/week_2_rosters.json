@@ -16,7 +16,7 @@
                     "slotId": 20,
                     "slotPosition": "BE",
                     "injuryStatus": "OUT",
-                    "actualPoints": null,
+                    "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
                 {
@@ -27,7 +27,7 @@
                     "slotId": 2,
                     "slotPosition": "RB",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 15.7,
                     "projectedPoints": 14.47471087
                 },
                 {
@@ -38,7 +38,7 @@
                     "slotId": 4,
                     "slotPosition": "WR",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 39.5,
                     "projectedPoints": 15.49770958
                 },
                 {
@@ -49,7 +49,7 @@
                     "slotId": 0,
                     "slotPosition": "QB",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 45.79,
                     "projectedPoints": 31.01499205
                 },
                 {
@@ -82,7 +82,7 @@
                     "slotId": 2,
                     "slotPosition": "RB",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 10.2,
                     "projectedPoints": 9.72901769
                 },
                 {
@@ -126,7 +126,7 @@
                     "slotId": 19,
                     "slotPosition": "HC",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 3.0,
                     "projectedPoints": 1.0
                 },
                 {
@@ -214,7 +214,7 @@
                     "slotId": 23,
                     "slotPosition": "FLEX",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 2.2,
                     "projectedPoints": 5.28995345
                 }
             ]
@@ -430,7 +430,7 @@
                     "slotId": 20,
                     "slotPosition": "BE",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 0.9,
                     "projectedPoints": 6.81549083
                 },
                 {
@@ -492,7 +492,7 @@
                     "slotId": 16,
                     "slotPosition": "D/ST",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 14.0,
                     "projectedPoints": 9.46425975
                 },
                 {
@@ -502,7 +502,7 @@
                     "proTeam": "IND",
                     "slotId": 4,
                     "slotPosition": "WR",
-                    "injuryStatus": "QUESTIONABLE",
+                    "injuryStatus": "DOUBTFUL",
                     "actualPoints": 2.1,
                     "projectedPoints": 11.02902355
                 },
@@ -807,7 +807,7 @@
                     "slotId": 20,
                     "slotPosition": "BE",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 0.6,
                     "projectedPoints": 0.0
                 },
                 {
@@ -873,7 +873,7 @@
                     "slotId": 20,
                     "slotPosition": "BE",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 5.0,
                     "projectedPoints": 6.13796531
                 }
             ]
@@ -1100,7 +1100,7 @@
                     "slotId": 20,
                     "slotPosition": "BE",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 3.5,
                     "projectedPoints": 8.41147774
                 }
             ]
@@ -1477,7 +1477,7 @@
                     "slotId": 20,
                     "slotPosition": "BE",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 5.0,
                     "projectedPoints": 8.90736813
                 },
                 {
@@ -1499,7 +1499,7 @@
                     "slotId": 20,
                     "slotPosition": "BE",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 0.0,
                     "projectedPoints": 0.38931675
                 },
                 {
@@ -1843,7 +1843,7 @@
                     "slotId": 17,
                     "slotPosition": "K",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 3.0,
                     "projectedPoints": 9.40819735
                 },
                 {
@@ -2253,7 +2253,7 @@
                     "slotId": 6,
                     "slotPosition": "TE",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 8.3,
                     "projectedPoints": 10.96404932
                 },
                 {
@@ -2403,7 +2403,7 @@
                     "slotId": 2,
                     "slotPosition": "RB",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 9.5,
                     "projectedPoints": 12.83219918
                 },
                 {
@@ -2867,8 +2867,8 @@
                     "proTeam": "NYG",
                     "slotId": 0,
                     "slotPosition": "QB",
-                    "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "injuryStatus": "OUT",
+                    "actualPoints": 1.4,
                     "projectedPoints": 28.3291322
                 },
                 {
@@ -3062,7 +3062,7 @@
                     "slotId": 23,
                     "slotPosition": "FLEX",
                     "injuryStatus": "ACTIVE",
-                    "actualPoints": null,
+                    "actualPoints": 1.1,
                     "projectedPoints": 14.92657998
                 },
                 {
@@ -3460,5 +3460,5 @@
             ]
         }
     ],
-    "extracted_at": "2026-09-21 20:01:41"
+    "extracted_at": "2026-09-21 23:14:39"
 }
