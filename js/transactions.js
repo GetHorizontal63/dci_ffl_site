@@ -318,7 +318,7 @@ function renderTrades() {
     const cards = list.map(g => {
         const sorted = [...g].sort((a, b) => b.net_total - a.net_total);
         const inferred = g[0].evidence === 'rosters'
-            ? ' <span class="hp-badge" title="ESPN never marked this trade processed, but the players changed teams in the weekly rosters">From rosters</span>' : '';
+            ? ' <span class="hp-badge" title="Found from the weekly rosters (players swapped two-way between these teams), not from an ESPN trade record">From rosters</span>' : '';
         return `
             <div class="hp-panel hp-trade">
                 <h2 class="hp-panel-title"><span>${when(g[0])}${inferred}</span><small>${sorted.map(m => m.owner).join(' &amp; ')}</small></h2>
@@ -344,5 +344,5 @@ function renderTrades() {
     const cols = Array.from({ length: columns }, () => []);
     cards.forEach((card, i) => cols[i % columns].push(card));
     return `<div class="hp-trade-list">${cols.map(col => `<div class="hp-trade-col">${col.join('')}</div>`).join('')}</div>
-        <p class="hp-note hp-trade-note">${list.length} trade${list.length === 1 ? '' : 's'}. Points are rest of season from the week the players landed. "From rosters" marks trades ESPN never recorded as processed but that show up in the weekly rosters. A side's Sent total includes players cut to make room, since that was part of the cost. "Without this trade" is that side's real regular-season record and point differential next to what they would have been had the sent player(s) kept starting in place of the received one(s), every week the received player(s) actually started.</p>`;
+        <p class="hp-note hp-trade-note">${list.length} trade${list.length === 1 ? '' : 's'}. Points are rest of season from the week the players landed. Trades are found from players swapping two-way between two teams in the weekly rosters; "From rosters" marks the ones with no matching ESPN trade record. "Without this trade" is that side's real regular-season record and point differential next to what they would have been had the sent player(s) kept starting in place of the received one(s), every week the received player(s) actually started.</p>`;
 }
