@@ -338,6 +338,24 @@ body.hp-timeline { --hp-bg: url('../assets/images/background-16.png'); }
 .hp-trade-net b { font-size: 1rem; margin-left: 0.25rem; }
 .hp-trade-note { margin-top: 1rem; }
 
+/* ---- Without This Move (what-if record), Pickups table + Trade cards ---- */
+.hp-whatif { text-align: left; white-space: normal; min-width: 11.5rem; }
+.hp-whatif-line { display: flex; align-items: baseline; gap: 0.5rem; font-size: 0.82rem; line-height: 1.5; }
+.hp-whatif-line b { font-size: 0.92rem; }
+.hp-whatif-line .hp-dim { font-size: 0.72rem; white-space: nowrap; }
+.hp-whatif-delta { margin-top: 0.2rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; }
+.hp-whatif-none { text-align: center; }
+
+.hp-trade-whatif {
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.15);
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+.hp-trade-whatif b { color: #fff; font-weight: 700; }
+.hp-trade-whatif .hp-whatif-delta { margin-top: 0.3rem; }
+
 /* Spacing inside the frozen header block (Transactions, Manager History, Standings History, ...) */
 .frozen-head > .page-title { margin-bottom: 1.5rem; }
 .frozen-head > .hp-controls { margin-bottom: 1.5rem; }

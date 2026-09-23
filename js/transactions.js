@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 SELECT m.move_id, m.transaction_id, m.kind, m.season, m.scoring_period, m.effective_week,
                        m.owner_id, o.display_name AS owner, c.display_name AS counterparty,
                        m.weeks_counted, m.pts_in, m.pts_out, m.started_in, m.started_out,
-                       m.net_total, m.net_started, m.percentile, m.grade, m.provisional, m.evidence
+                       m.net_total, m.net_started, m.percentile, m.grade, m.provisional, m.evidence,
+                       m.real_wins, m.real_losses, m.real_ties, m.real_pd,
+                       m.alt_wins, m.alt_losses, m.alt_ties, m.alt_pd
                 FROM transaction_moves m
                 JOIN owners o ON o.owner_id = m.owner_id
                 LEFT JOIN owners c ON c.owner_id = m.counterparty_owner_id`),
@@ -102,6 +104,49 @@ function playerList(moveId, direction, started) {
             <span class="hp-pname">${p.name}</span>${p.position ? `<span class="hp-ppos">${p.position}</span>` : ''}
             <span class="hp-ppts" title="${fmt1(p.started_points)} pts in a starting lineup over ${p.weeks_started} week${p.weeks_started === 1 ? '' : 's'}">${fmt1(started ? p.started_points : p.ros_points)}</span>
         </div>`).join('');
+}
+
+const record = (w, l, t) => `${w}-${l}${t ? `-${t}` : ''}`;
+
+// What the manager's regular-season record and point diff would have been if the players sent/dropped in
+// this move had kept starting in place of the players received/added, every week the new ones started
+// (see python/transaction_grades.py). null when there is nothing to swap in (no matching drop).
+function whatif(m) {
+    if (m.alt_wins == null) return null;
+    const realRec = record(m.real_wins, m.real_losses, m.real_ties);
+    const altRec = record(m.alt_wins, m.alt_losses, m.alt_ties);
+    const dw = m.real_wins - m.alt_wins;          // positive: the move is worth more real wins than the alternative
+    const dpd = m.real_pd - m.alt_pd;
+    const helped = dw > 0 ? 'hp-pos' : dw < 0 ? 'hp-neg' : dpd > 0 ? 'hp-pos' : dpd < 0 ? 'hp-neg' : '';
+    const tip = `If ${m.owner} had kept starting the player(s) sent/dropped in place of the player(s) received, every week the new ones started, the regular-season record would have been ${altRec} (real: ${realRec}) and point differential ${signed(m.alt_pd)} (real: ${signed(m.real_pd)}).`;
+    return { realRec, altRec, dw, dpd, helped, tip };
+}
+
+function whatifLines(m, w) {
+    return `
+        <div class="hp-whatif-line"><b>${w.realRec}</b><span class="hp-dim">without it: ${w.altRec}</span></div>
+        <div class="hp-whatif-line"><b class="${cls(m.real_pd)}">${signed(m.real_pd)}</b><span class="hp-dim">without it: ${signed(m.alt_pd)}</span></div>`;
+}
+
+function whatifCell(m) {
+    const w = whatif(m);
+    if (!w) return `<td class="hp-dim hp-whatif-none" title="No player was dropped for this move, so there is nothing to swap in and compare.">&mdash;</td>`;
+    return `
+        <td class="hp-whatif" title="${w.tip}">
+            ${whatifLines(m, w)}
+            <div class="hp-whatif-delta ${w.helped}">${w.dw > 0 ? '+' : ''}${w.dw}W from this move</div>
+        </td>`;
+}
+
+function whatifBlock(m) {
+    const w = whatif(m);
+    if (!w) return '';
+    return `
+        <div class="hp-trade-whatif" title="${w.tip}">
+            <div class="hp-label">Without This Trade</div>
+            ${whatifLines(m, w)}
+            <div class="hp-whatif-delta ${w.helped}">${w.dw > 0 ? '+' : ''}${w.dw}W from this trade</div>
+        </div>`;
 }
 
 function filtered(kind) {
@@ -206,6 +251,7 @@ function renderPickups() {
             <td class="${cls(m.net_total)}">${signed(m.net_total)}</td>
             <td class="${cls(m.net_started)}">${signed(m.net_started)}</td>
             <td>${gradeChip(m)}</td>
+            ${whatifCell(m)}
         </tr>`).join('');
     return `
         <div class="hp-panel">
@@ -215,13 +261,13 @@ function renderPickups() {
                     <thead><tr>
                         <th class="hp-left">When</th><th class="hp-left">Manager</th>
                         <th class="hp-left">Added <small>rest-of-season pts</small></th><th class="hp-left">Dropped <small>rest-of-season pts</small></th>
-                        <th>Net</th><th>Net Started</th><th>Grade</th>
+                        <th>Net</th><th>Net Started</th><th>Grade</th><th class="hp-left">Without This Move</th>
                     </tr></thead>
                     <tbody>${body}</tbody>
                 </table>
             </div>
             ${moreButton(list.length)}
-            <p class="hp-note">Rest of season = the week the player hit the roster through the last regular-season week. Net = added minus dropped; Net Started counts only points scored while in a starting lineup (hover a player's points for his starts). Grade is percentile against every pickup in completed seasons.</p>
+            <p class="hp-note">Rest of season = the week the player hit the roster through the last regular-season week. Net = added minus dropped; Net Started counts only points scored while in a starting lineup (hover a player's points for his starts). Grade is percentile against every pickup in completed seasons. Without This Move is the manager's real regular-season record and point differential next to what they would have been had the dropped player kept starting instead, every week the added player actually started (only shown when a player was dropped for this pickup).</p>
         </div>`;
 }
 
@@ -250,7 +296,7 @@ function renderDrops() {
                 </table>
             </div>
             ${moreButton(list.length)}
-            <p class="hp-note">Points since the drop is what the dropped player scored for anyone through the end of the regular season; Started Since counts only weeks he was in a starting lineup. Cutting someone who kept producing grades badly; cutting a dud grades well. Drops made as part of a waiver claim or trade are judged inside that move instead.</p>
+            <p class="hp-note">Points since the drop is what the dropped player scored for anyone through the end of the regular season; Started Since counts only weeks he was in a starting lineup. Cutting someone who kept producing grades badly; cutting a dud grades well. Drops made as part of a waiver claim or trade are judged inside that move instead, where a "Without This Move" record is shown, since a plain drop brings nobody in to compare against.</p>
         </div>`;
 }
 
@@ -287,6 +333,7 @@ function renderTrades() {
                                 <span>Net <b class="${cls(m.net_total)}">${signed(m.net_total)}</b></span>
                                 <span>Started <b class="${cls(m.net_started)}">${signed(m.net_started)}</b></span>
                             </div>
+                            ${whatifBlock(m)}
                         </div>`).join('')}
                 </div>
             </div>`;
@@ -297,5 +344,5 @@ function renderTrades() {
     const cols = Array.from({ length: columns }, () => []);
     cards.forEach((card, i) => cols[i % columns].push(card));
     return `<div class="hp-trade-list">${cols.map(col => `<div class="hp-trade-col">${col.join('')}</div>`).join('')}</div>
-        <p class="hp-note hp-trade-note">${list.length} trade${list.length === 1 ? '' : 's'}. Points are rest of season from the week the players landed. "From rosters" marks trades ESPN never recorded as processed but that show up in the weekly rosters. A side's Sent total includes players cut to make room, since that was part of the cost.</p>`;
+        <p class="hp-note hp-trade-note">${list.length} trade${list.length === 1 ? '' : 's'}. Points are rest of season from the week the players landed. "From rosters" marks trades ESPN never recorded as processed but that show up in the weekly rosters. A side's Sent total includes players cut to make room, since that was part of the cost. "Without this trade" is that side's real regular-season record and point differential next to what they would have been had the sent player(s) kept starting in place of the received one(s), every week the received player(s) actually started.</p>`;
 }
