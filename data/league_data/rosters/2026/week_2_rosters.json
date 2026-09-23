@@ -15,7 +15,7 @@
                     "proTeam": "LAR",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -469,7 +469,7 @@
                     "proTeam": "LV",
                     "slotId": 21,
                     "slotPosition": "IR",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -502,7 +502,7 @@
                     "proTeam": "IND",
                     "slotId": 4,
                     "slotPosition": "WR",
-                    "injuryStatus": "DOUBTFUL",
+                    "injuryStatus": "OUT",
                     "actualPoints": 2.1,
                     "projectedPoints": 11.02902355
                 },
@@ -590,7 +590,7 @@
                     "proTeam": "BUF",
                     "slotId": 21,
                     "slotPosition": "IR",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "ACTIVE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -762,7 +762,7 @@
                     "proTeam": "CHI",
                     "slotId": 23,
                     "slotPosition": "FLEX",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 7.8,
                     "projectedPoints": 9.81445676
                 },
@@ -795,7 +795,7 @@
                     "proTeam": "TEN",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 9.0,
                     "projectedPoints": 8.651007
                 },
@@ -828,7 +828,7 @@
                     "proTeam": "LAC",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "INJURY_RESERVE",
                     "actualPoints": 1.9,
                     "projectedPoints": 6.94689512
                 },
@@ -1033,7 +1033,7 @@
                     "proTeam": "WSH",
                     "slotId": 21,
                     "slotPosition": "IR",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -1099,7 +1099,7 @@
                     "proTeam": "LAR",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 3.5,
                     "projectedPoints": 8.41147774
                 }
@@ -1150,7 +1150,7 @@
                     "proTeam": "BAL",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -1161,7 +1161,7 @@
                     "proTeam": "PIT",
                     "slotId": 2,
                     "slotPosition": "RB",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 9.7,
                     "projectedPoints": 11.38090111
                 },
@@ -1304,7 +1304,7 @@
                     "proTeam": "SEA",
                     "slotId": 4,
                     "slotPosition": "WR",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 4.0,
                     "projectedPoints": 6.93626817
                 }
@@ -1432,7 +1432,7 @@
                     "proTeam": "CAR",
                     "slotId": 23,
                     "slotPosition": "FLEX",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 14.6,
                     "projectedPoints": 11.92887535
                 },
@@ -1670,7 +1670,7 @@
                     "proTeam": "ATL",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "QUESTIONABLE",
+                    "injuryStatus": "ACTIVE",
                     "actualPoints": 8.7,
                     "projectedPoints": 6.15719956
                 },
@@ -1853,7 +1853,7 @@
                     "proTeam": "GB",
                     "slotId": 23,
                     "slotPosition": "FLEX",
-                    "injuryStatus": "QUESTIONABLE",
+                    "injuryStatus": "OUT",
                     "actualPoints": 1.4,
                     "projectedPoints": 9.95950042
                 },
@@ -2036,7 +2036,7 @@
                     "proTeam": "PIT",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -2047,7 +2047,7 @@
                     "proTeam": "MIN",
                     "slotId": 23,
                     "slotPosition": "FLEX",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 10.5,
                     "projectedPoints": 14.14553816
                 },
@@ -2135,7 +2135,7 @@
                     "proTeam": "MIN",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "ACTIVE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -2241,7 +2241,7 @@
                     "proTeam": "CAR",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "DOUBTFUL",
+                    "injuryStatus": "INJURY_RESERVE",
                     "actualPoints": 2.1,
                     "projectedPoints": 8.65136266
                 },
@@ -2640,7 +2640,7 @@
                     "proTeam": "TEN",
                     "slotId": 2,
                     "slotPosition": "RB",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 7.5,
                     "projectedPoints": 11.12661738
                 },
@@ -2662,7 +2662,7 @@
                     "proTeam": "JAX",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 3.8,
                     "projectedPoints": 9.77699575
                 },
@@ -2772,7 +2772,7 @@
                     "proTeam": "SEA",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 2.5,
                     "projectedPoints": 8.0531557
                 },
@@ -2845,7 +2845,7 @@
                     "proTeam": "HOU",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -2856,7 +2856,7 @@
                     "proTeam": "NO",
                     "slotId": 2,
                     "slotPosition": "RB",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 7.1,
                     "projectedPoints": 12.76600993
                 },
@@ -3061,7 +3061,7 @@
                     "proTeam": "NYG",
                     "slotId": 23,
                     "slotPosition": "FLEX",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 1.1,
                     "projectedPoints": 14.92657998
                 },
@@ -3072,7 +3072,7 @@
                     "proTeam": "WSH",
                     "slotId": 0,
                     "slotPosition": "QB",
-                    "injuryStatus": "DOUBTFUL",
+                    "injuryStatus": "OUT",
                     "actualPoints": 19.62,
                     "projectedPoints": 30.16402174
                 },
@@ -3116,7 +3116,7 @@
                     "proTeam": "DEN",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -3160,7 +3160,7 @@
                     "proTeam": "DEN",
                     "slotId": 2,
                     "slotPosition": "RB",
-                    "injuryStatus": "ACTIVE",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 14.8,
                     "projectedPoints": 6.27223277
                 },
@@ -3387,7 +3387,7 @@
                     "proTeam": "SEA",
                     "slotId": 20,
                     "slotPosition": "BE",
-                    "injuryStatus": "OUT",
+                    "injuryStatus": "QUESTIONABLE",
                     "actualPoints": 0.0,
                     "projectedPoints": 0.0
                 },
@@ -3460,5 +3460,5 @@
             ]
         }
     ],
-    "extracted_at": "2026-09-21 23:14:39"
+    "extracted_at": "2026-09-23 19:27:48"
 }
