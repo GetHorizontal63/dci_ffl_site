@@ -7,6 +7,7 @@
 body.hp-standings { --hp-bg: url('../assets/images/background-4.png'); }
 body.hp-weekly    { --hp-bg: url('../assets/images/background-5.png'); }
 body.hp-manager   { --hp-bg: url('../assets/images/background-6.png'); }
+body.hp-comparepage { --hp-bg: url('../assets/images/background-7.png'); }
 body.hp-transactions { --hp-bg: url('../assets/images/background-8.png'); }
 body.hp-record { --hp-bg: url('../assets/images/background-10.png'); }
 body.hp-timeline { --hp-bg: url('../assets/images/background-16.png'); }
@@ -211,6 +212,95 @@ body.hp-timeline { --hp-bg: url('../assets/images/background-16.png'); }
 .hp-tile .hp-label { font-size: 0.7rem; }
 .hp-tile .hp-big { font-size: 1.5rem; font-weight: 700; color: #fff; }
 .hp-tile .hp-sub { font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); }
+
+/* Manager History: 6 tiles across, 2 rows; label / value / footnote are the same height in every tile
+   (js/manager-history.js measures the tallest label and footnote and sets the two variables). */
+.hp-manager .hp-tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: 1fr; }
+.hp-manager .hp-tile { justify-content: flex-start; }
+.hp-manager .hp-tile .hp-label { min-height: var(--tile-label-h, 0); line-height: 1.25; }
+.hp-manager .hp-tile .hp-big { line-height: 1.2; white-space: nowrap; }
+.hp-manager .hp-tile .hp-sub { min-height: var(--tile-sub-h, 0); line-height: 1.25; }
+@media (max-width: 1100px) { .hp-manager .hp-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .hp-manager .hp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.hp-cta {
+    display: inline-block;
+    padding: 0.7rem 1.1rem;
+    border: 1px solid rgba(218, 165, 32, 0.6);
+    color: #f5c302;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: rgba(218, 165, 32, 0.08);
+}
+.hp-cta:hover { background: rgba(218, 165, 32, 0.2); }
+
+/* ---- Compare Managers ---- */
+.hp-compare { table-layout: fixed; width: 100%; }
+.hp-compare th:first-child, .hp-compare td:first-child { width: 26%; }
+.hp-compare thead th { position: sticky; top: 0; z-index: 2; background: rgba(20, 20, 20, 0.97); padding-top: 0.9rem; padding-bottom: 0.9rem; }
+.hp-cmp-head a { display: block; color: #fff; font-size: 1.05rem; font-weight: 700; text-decoration: none; letter-spacing: 0.02em; }
+.hp-cmp-head a:hover { color: #f5c302; }
+.hp-cmp-head small { display: block; margin-top: 0.2rem; color: rgba(255, 255, 255, 0.5); font-weight: 400; font-size: 0.75rem; text-transform: none; letter-spacing: 0; }
+.hp-compare tbody td { text-align: center; }
+.hp-compare tbody td small { color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; }
+.hp-compare .hp-cmp-section th {
+    padding: 0.7rem 1.25rem; text-align: left; background: rgba(218, 165, 32, 0.14);
+    color: #f5c302; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+    border-top: 1px solid rgba(218, 165, 32, 0.4);
+}
+.hp-compare .hp-cmp-section small { margin-left: 0.75rem; color: rgba(255, 255, 255, 0.5); text-transform: none; letter-spacing: 0; font-weight: 400; }
+.hp-compare td.hp-best { color: #f5c302; font-weight: 700; background: rgba(218, 165, 32, 0.12); }
+@media (max-width: 700px) {
+    .hp-compare { font-size: 0.8rem; }
+    .hp-compare th:first-child, .hp-compare td:first-child { width: 31%; padding-left: 0.6rem; }
+    .hp-compare th, .hp-compare td { padding-left: 0.3rem; padding-right: 0.3rem; }
+    .hp-compare thead th { position: static; }
+    .hp-compare thead .hp-cmp-head a { font-size: 0.8rem; letter-spacing: 0; word-break: break-word; }
+    .hp-compare thead .hp-cmp-head small { display: none; }
+    .hp-compare .hp-cmp-section th { padding: 0.6rem; }
+    .hp-compare .hp-cmp-section small { display: block; margin: 0.15rem 0 0; }
+}
+
+/* ---- Score distribution chart (Manager History) ---- */
+.hp-dist { --dist-mgr: #c98500; --dist-league: #3987e5; --dist-bell: #c3c2b7; }
+.hp-key { display: inline-block; vertical-align: middle; margin-right: 0.5rem; flex: none; }
+.hp-key-mgr { width: 12px; height: 12px; border-radius: 2px; background: var(--dist-mgr); }
+.hp-key-league { width: 18px; height: 0; border-top: 2px solid var(--dist-league); }
+.hp-key-bell { width: 18px; height: 0; border-top: 2px dashed var(--dist-bell); }
+.hp-dist-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; padding: 1rem 1.25rem 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); }
+.hp-dist-wrap { position: relative; padding: 0.5rem 1.25rem 0.25rem; }
+.hp-dist-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.hp-dist-grid { stroke: rgba(255, 255, 255, 0.09); stroke-width: 1; }
+.hp-dist-tick { fill: rgba(255, 255, 255, 0.55); font-size: 11px; }
+.hp-dist-axis { fill: rgba(255, 255, 255, 0.55); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; }
+.hp-dist-bar { fill: var(--dist-mgr); }
+.hp-dist-league { fill: none; stroke: var(--dist-league); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.hp-dist-bell { fill: none; stroke: var(--dist-bell); stroke-width: 2; stroke-dasharray: 6 4; stroke-linecap: round; }
+.hp-dist-band { fill: rgba(255, 255, 255, 0.07); pointer-events: none; }
+.hp-dist-hit { fill: transparent; outline: none; }
+.hp-dist-tip {
+    position: absolute; z-index: 5; pointer-events: none;
+    min-width: 11rem; padding: 0.6rem 0.75rem;
+    background: rgba(12, 12, 12, 0.96); border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);
+}
+.hp-dist-tip-head { color: #fff; font-weight: 600; margin-bottom: 0.35rem; }
+.hp-dist-tip > div:not(.hp-dist-tip-head) { display: flex; align-items: center; gap: 0.5rem; }
+.hp-dist-tip .hp-key { margin-right: 0; }
+.hp-dist-tip b { color: #fff; font-weight: 700; min-width: 3.2rem; }
+.hp-dist-table td .hp-key { margin-right: 0.5rem; }
+@media (max-width: 700px) {
+    .hp-dist-wrap { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .hp-dist-tick, .hp-dist-axis { font-size: 13px; }
+    .hp-dist-table th, .hp-dist-table td { padding-left: 0.3rem; padding-right: 0.3rem; font-size: 0.78rem; }
+    .hp-dist-table th:first-child, .hp-dist-table td:first-child { padding-left: 0.75rem; }
+}
+.hp-dist-details { padding: 0 1.25rem; }
+.hp-dist-details summary { cursor: pointer; padding: 0.6rem 0; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; }
+.hp-dist-details .hp-scroll { margin: 0 -1.25rem; }
 
 /* ---- Score-rank heat grid ---- */
 .hp-heat td.hp-cell { padding: 0.55rem 0.1rem; min-width: 1.6rem; font-size: 0.8rem; }

@@ -199,7 +199,7 @@ function processLeagueRecords() {
     calculateSingleGameRecords();
     calculateSingleSeasonRecords(seasonStats);
     calculatePlayerRecords();
-    calculateTransactionAndLuckRecords();
+    calculateTransactionAndLuckRecords().then(calculateLineupRecords);
 }
 
 function calculateWinLossRecords(teamStats, seasonStats) {
@@ -613,7 +613,7 @@ function showError() {
 // ---------------------------------------------------------------------------
 const GRADE_POINTS = { A: 4, B: 3, C: 2, D: 1, F: 0 };
 
-function addRecordCategory(tabId, title, cards) {
+function addRecordCategory(tabId, title, cards, note) {
     const tab = document.getElementById(tabId);
     if (!tab) return;
     const holders = key => ['holder', 'runner-up-1', 'runner-up-2'].map((position, i) => `
@@ -633,7 +633,7 @@ function addRecordCategory(tabId, title, cards) {
                 <div class="record-holders">${holders(card.key)}
                 </div>
             </div>`).join('')}
-        </div>`;
+        </div>${note ? `<p class="hp-note">${note}</p>` : ''}`;
     tab.appendChild(section);
 }
 
@@ -784,6 +784,64 @@ async function calculateTransactionAndLuckRecords() {
         set('txCostliestDrop', moveList('DROP', 'OUT'), 'low');
     } catch (error) {
         console.error('Error calculating transaction records:', error);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Lineup skill: FP+ (starters' points vs. their projection, 100 = on projection) and roster
+// efficiency (starters' points vs. the best lineup the roster allowed), pooled over regular-season
+// weeks the same way the Game Log measures them (see js/roster-metrics.js). Completed seasons only.
+// ---------------------------------------------------------------------------
+async function calculateLineupRecords() {
+    try {
+        const [completedRows, metrics] = await Promise.all([
+            LeagueDb.query('SELECT DISTINCT season FROM final_placements'),
+            RosterMetrics.load()
+        ]);
+        const completed = new Set(completedRows.map(r => r.season));
+        const career = new Map(), seasonal = new Map();
+        const add = (map, key, label, m) => {
+            const e = map.get(key) || { label, weeks: [], seasons: new Set() };
+            e.weeks.push(m);
+            map.set(key, e);
+            return e;
+        };
+        leagueScoreData.forEach(g => {
+            if (g['Season Period'] !== 'Regular' || !g.Team || !g.Opponent || g.Opponent.toLowerCase() === 'bye' || !completed.has(g.Season)) return;
+            const m = metrics.get(`${g.Team}|${g.Season}|${g.Week}`);
+            if (!m) return;
+            add(career, g.Team, g.Team, m).seasons.add(g.Season);
+            add(seasonal, `${g.Team}|${g.Season}`, `${g.Team} (${g.Season})`, m).seasons.add(g.Season);
+        });
+        const rows = (map, minWeeks, minSeasons, field, fmt) => [...map.values()]
+            .map(e => ({ e, p: RosterMetrics.pool(e.weeks) }))
+            .filter(x => x.p.weeks >= minWeeks && x.e.seasons.size >= minSeasons && x.p[field] != null)
+            .map(x => ({ team: x.e.label, raw: x.p[field], value: fmt(x.p[field]) }));
+        const idx = v => v.toFixed(1), pct = v => `${v.toFixed(1)}%`;
+
+        addRecordCategory('league-records', 'Lineup Skill (Full History)', [
+            { key: 'fpBestCareer', title: 'Beats the Projections', subtitle: 'Best career FP+ (min 3 seasons)' },
+            { key: 'fpWorstCareer', title: 'Missed the Mark', subtitle: 'Worst career FP+ (min 3 seasons)' },
+            { key: 'effBestCareer', title: 'Lineup Perfectionist', subtitle: 'Best career efficiency (min 3 seasons)' },
+            { key: 'effWorstCareer', title: 'Benched the Wrong Guys', subtitle: 'Worst career efficiency (min 3 seasons)' }
+        ], 'FP+ is the points the starters scored divided by their projected points (100 = right on projection). Efficiency is the points they scored divided by what the best lineup on the roster would have scored, swapping in only bench players who beat a same-position starter. Both are pooled over regular-season weeks; completed seasons only.');
+        addRecordCategory('single-season', 'Lineup Skill (Single Season)', [
+            { key: 'fpBestSeason', title: 'Overachievers', subtitle: 'Best FP+ in a season (min 10 games)' },
+            { key: 'fpWorstSeason', title: 'Underachievers', subtitle: 'Worst FP+ in a season (min 10 games)' },
+            { key: 'effBestSeason', title: 'Perfect Lineups', subtitle: 'Best efficiency in a season (min 10 games)' },
+            { key: 'effWorstSeason', title: 'Left It on the Bench', subtitle: 'Worst efficiency in a season (min 10 games)' }
+        ], 'FP+ is the points the starters scored divided by their projected points (100 = right on projection). Efficiency is the points they scored divided by what the best lineup on the roster would have scored, swapping in only bench players who beat a same-position starter. Both are pooled over regular-season weeks; completed seasons only.');
+        const set = (key, list, better) => updateRecord(key, topN(list, better));
+        set('fpBestCareer', rows(career, 0, 3, 'fp', idx), 'high');
+        set('fpWorstCareer', rows(career, 0, 3, 'fp', idx), 'low');
+        set('effBestCareer', rows(career, 0, 3, 'eff', pct), 'high');
+        set('effWorstCareer', rows(career, 0, 3, 'eff', pct), 'low');
+        set('fpBestSeason', rows(seasonal, 10, 1, 'fp', idx), 'high');
+        set('fpWorstSeason', rows(seasonal, 10, 1, 'fp', idx), 'low');
+        set('effBestSeason', rows(seasonal, 10, 1, 'eff', pct), 'high');
+        set('effWorstSeason', rows(seasonal, 10, 1, 'eff', pct), 'low');
+    } catch (error) {
+        console.error('Error calculating lineup records:', error);
     }
 }
 

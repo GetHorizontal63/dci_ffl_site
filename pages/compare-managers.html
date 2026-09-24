@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager History - Past Seasons</title>
+    <title>Compare Managers - Past Seasons</title>
     <link rel="stylesheet" href="../css/division-page.css">
     <link rel="stylesheet" href="../css/history-pages.css">
     <link rel="stylesheet" href="../css/mobile.css">
 </head>
-<body class="hp-manager frozen-page frozen-tall">
+<body class="hp-comparepage frozen-page frozen-tall">
     <!-- Navigation -->
     <nav class="navbar past-seasons-nav">
         <div class="nav-container">
@@ -36,22 +36,25 @@
     <section class="section-content standings-section">
         <div class="search-container">
             <div class="hp-frozen frozen-head">
-            <h1 class="page-title">Manager History</h1>
+            <h1 class="page-title">Compare Managers</h1>
 
             <div class="hp-controls">
                 <div class="hp-field">
-                    <label class="hp-label" for="manager-select">Manager</label>
-                    <select id="manager-select" class="hp-select"><option>Loading...</option></select>
+                    <label class="hp-label" for="cmp-1">Manager 1</label>
+                    <select id="cmp-1" class="hp-select"><option>Loading...</option></select>
                 </div>
                 <div class="hp-field">
-                    <a id="compare-link" class="hp-cta" href="compare-managers.html">Compare managers &rarr;</a>
+                    <label class="hp-label" for="cmp-2">Manager 2</label>
+                    <select id="cmp-2" class="hp-select"></select>
+                </div>
+                <div class="hp-field">
+                    <label class="hp-label" for="cmp-3">Manager 3</label>
+                    <select id="cmp-3" class="hp-select"></select>
                 </div>
             </div>
-
-            <div id="hp-summary"></div>
             </div>
 
-            <div id="hp-content" class="frozen-body"><div class="hp-loading">Loading manager history...</div></div>
+            <div id="hp-content" class="frozen-body"><div class="hp-loading">Loading managers...</div></div>
         </div>
     </section>
 
@@ -59,7 +62,7 @@
     <script src="../js/league-db.js"></script>
     <script src="../js/roster-metrics.js"></script>
     <script src="../js/manager-stats.js"></script>
-    <script src="../js/manager-history.js"></script>
+    <script src="../js/compare-managers.js"></script>
     <script src="../js/mobile.js"></script>
 </body>
 </html>

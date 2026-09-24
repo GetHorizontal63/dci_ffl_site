@@ -40,5 +40,40 @@ const RosterMetrics = (() => {
         return { actual, projected, optimal: actual + gain };
     }
 
-    return { weekOf };
+    // Every team-week's metrics, keyed "owner|season|week".
+    async function load() {
+        const rows = await LeagueDb.query(`
+            SELECT o.display_name AS owner, fr.season, fr.week, p.player_id AS playerId, p.position,
+                   frp.slot_position AS slotPosition, frp.actual_points AS actualPoints,
+                   frp.projected_points AS projectedPoints
+            FROM fantasy_rosters fr
+            JOIN owners o ON o.owner_id = fr.owner_id
+            JOIN fantasy_roster_players frp ON frp.roster_id = fr.roster_id
+            JOIN players p ON p.player_id = frp.player_id`);
+        const rosters = new Map();
+        rows.forEach(r => {
+            const key = `${r.owner}|${r.season}|${r.week}`;
+            if (!rosters.has(key)) rosters.set(key, []);
+            rosters.get(key).push(r);
+        });
+        const metrics = new Map();
+        rosters.forEach((roster, key) => metrics.set(key, weekOf(roster)));
+        return metrics;
+    }
+
+    // FP+ and efficiency over many team-weeks, pooled (total points over total projected / best-possible
+    // points) so big weeks count for more than a percentage average would. Weeks with no projection or
+    // no scoring on file are skipped.
+    function pool(weeks) {
+        let act = 0, proj = 0, effAct = 0, best = 0, n = 0;
+        weeks.forEach(m => {
+            if (!m || !(m.actual > 0)) return;
+            n += 1;
+            if (m.projected > 0) { act += m.actual; proj += m.projected; }
+            if (m.optimal > 0) { effAct += m.actual; best += m.optimal; }
+        });
+        return { fp: proj ? 100 * act / proj : null, eff: best ? 100 * effAct / best : null, left: best - effAct, weeks: n };
+    }
+
+    return { weekOf, load, pool };
 })();
