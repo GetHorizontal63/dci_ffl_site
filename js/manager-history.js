@@ -4,17 +4,32 @@ let seasonRows = [];
 let accolades = [];
 let allGames = [];
 let currentSeason = null;
+const weekMetrics = new Map();   // "owner|season|week" -> { actual, projected, optimal }
 
 document.addEventListener('DOMContentLoaded', async () => {
     const content = document.getElementById('hp-content');
     try {
-        const [teamRows, scoreRows, accoladeRows] = await Promise.all([
+        const [teamRows, scoreRows, accoladeRows, rosterRows] = await Promise.all([
             LeagueDb.seasonTeamRows(), LeagueDb.scoreRows(),
             LeagueDb.query(`SELECT a.season, a.award, o.display_name AS owner
-                            FROM accolades a JOIN owners o ON o.owner_id = a.owner_id`)
+                            FROM accolades a JOIN owners o ON o.owner_id = a.owner_id`),
+            LeagueDb.query(`SELECT o.display_name AS owner, fr.season, fr.week, p.player_id AS playerId, p.position,
+                                   frp.slot_position AS slotPosition, frp.actual_points AS actualPoints,
+                                   frp.projected_points AS projectedPoints
+                            FROM fantasy_rosters fr
+                            JOIN owners o ON o.owner_id = fr.owner_id
+                            JOIN fantasy_roster_players frp ON frp.roster_id = fr.roster_id
+                            JOIN players p ON p.player_id = frp.player_id`)
         ]);
         seasonRows = teamRows;
         accolades = accoladeRows;
+        const rosters = new Map();
+        rosterRows.forEach(r => {
+            const key = `${r.owner}|${r.season}|${r.week}`;
+            if (!rosters.has(key)) rosters.set(key, []);
+            rosters.get(key).push(r);
+        });
+        rosters.forEach((roster, key) => weekMetrics.set(key, RosterMetrics.weekOf(roster)));
         currentSeason = Math.max(...seasonRows.map(r => r.season));
         const played = scoreRows
             .filter(g => g.Team && g.Opponent && g.Team.toLowerCase() !== 'bye' && g.Opponent.toLowerCase() !== 'bye');
@@ -30,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const w = weekSize[`${g.Season}-${g.Week}`];
             return {
                 owner: g.Team, opponent: g.Opponent, us: Number(g['Team Score']), them: Number(g['Opponent Score']),
-                season: g.Season,
+                season: g.Season, week: g.Week,
                 regular: g['Season Period'] === 'Regular',
                 rank: Number(g['Score Rank on Week']), oppRank: Number(g['Opponent Score Rank on Week']),
                 n: w ? Math.max(w.rows, w.maxRank) : 0
@@ -79,6 +94,19 @@ function luckOf(games) {
     });
     return { w, e, idx: e > 0 ? 100 * w / e : null };
 }
+// FP+ and roster efficiency over a manager's regular-season games, pooled (total points over total
+// projected / best-possible points) so heavy weeks count for more than a percentage average would.
+function lineupOf(games) {
+    let act = 0, proj = 0, effAct = 0, best = 0;
+    games.forEach(g => {
+        const m = g.regular && weekMetrics.get(`${g.owner}|${g.season}|${g.week}`);
+        if (!m || !(m.actual > 0)) return;
+        if (m.projected > 0) { act += m.actual; proj += m.projected; }
+        if (m.optimal > 0) { effAct += m.actual; best += m.optimal; }
+    });
+    return { fp: proj ? 100 * act / proj : null, eff: best ? 100 * effAct / best : null, left: best - effAct };
+}
+const fmtIdx = x => (x == null ? '-' : x.toFixed(1));
 const luckClass = idx => (idx == null ? '' : idx >= 100 ? 'hp-pos' : 'hp-neg');
 
 // Accolades section: a championship shield for every 1st / 2nd / 3rd place finish, then the
@@ -146,6 +174,8 @@ function render(manager) {
     const doneSeasons = new Set(done.map(r => r.season));
     const career = luckOf(allGames.filter(g => g.owner === manager && doneSeasons.has(g.season)));
 
+    const lineup = lineupOf(allGames.filter(g => g.owner === manager && doneSeasons.has(g.season)));
+
     const tiles = `
         <div class="hp-tiles">
             ${tile('Seasons', done.length, inProgress ? `+ ${currentSeason} in progress` : '')}
@@ -158,11 +188,14 @@ function render(manager) {
             ${tile('Points / game', games ? (totals.pf / games).toFixed(1) : '-', games ? `${(totals.pa / games).toFixed(1)} against` : '')}
             ${tile('Point differential', fmtPd(totals.pf - totals.pa), 'career')}
             ${tile('Schedule luck index', career.idx == null ? '-' : career.idx.toFixed(0), career.idx == null ? '' : `100 = average &middot; ${career.w - career.e >= 0 ? '+' : ''}${(career.w - career.e).toFixed(1)} wins vs all-play`)}
+            ${tile('FP+', fmtIdx(lineup.fp), 'starters vs. projection &middot; 100 = on projection')}
+            ${tile('Roster efficiency', lineup.eff == null ? '-' : `${lineup.eff.toFixed(1)}%`, lineup.eff == null ? '' : `${Math.round(lineup.left).toLocaleString()} pts left on the bench`)}
         </div>`;
 
     const seasonBody = mine.map(r => {
         const pd = r.pointsFor - r.pointsAgainst;
         const lk = r.place == null ? { idx: null } : luckOf(allGames.filter(g => g.owner === manager && g.season === r.season));   // one game says nothing
+        const lu = lineupOf(allGames.filter(g => g.owner === manager && g.season === r.season));
         const finish = r.place != null ? ordinal(r.place) : (r.season === currentSeason ? 'In progress' : '-');
         const post = r.bracketType === 'championship'
             ? '<span class="hp-badge hp-green">Championship</span>'
@@ -175,6 +208,8 @@ function render(manager) {
                 <td>${fmtPct(pctOf(r.wins, r.losses, r.ties))}</td>
                 <td class="${luckClass(lk.idx)}" title="${lk.idx == null ? '' : `${lk.w - lk.e >= 0 ? '+' : ''}${(lk.w - lk.e).toFixed(1)} wins vs all-play`}">${lk.idx == null ? '-' : lk.idx.toFixed(0)}</td>
                 <td class="${pd >= 0 ? 'hp-pos' : 'hp-neg'}">${fmtPd(pd)}</td>
+                <td class="${lu.fp == null ? '' : lu.fp >= 100 ? 'hp-pos' : 'hp-neg'}">${fmtIdx(lu.fp)}</td>
+                <td>${lu.eff == null ? '-' : `${lu.eff.toFixed(1)}%`}</td>
                 <td>${fmt2(r.pointsFor)}</td>
                 <td>${fmt2(r.pointsAgainst)}</td>
                 <td>${finish}</td>
@@ -236,12 +271,12 @@ function render(manager) {
                 <table class="hp-table">
                     <thead><tr>
                         <th>Season</th><th class="hp-left">Division</th><th>W-L</th><th>PCT</th><th title="Schedule luck index: 100 = league average">Luck</th>
-                        <th>PD</th><th>PF</th><th>PA</th><th>Finish</th><th>Postseason</th>
+                        <th>PD</th><th title="Starters' points vs. their projection: 100 = on projection">FP+</th><th title="Starters' points vs. the best lineup the roster allowed">Eff.</th><th>PF</th><th>PA</th><th>Finish</th><th>Postseason</th>
                     </tr></thead>
                     <tbody>${seasonBody}</tbody>
                 </table>
             </div>
-            <p class="hp-note">Luck is the schedule luck index: actual wins divided by the wins the weekly score ranks predict (all-play), times 100. 100 is the league average; above 100 the schedule helped, below it hurt.</p>
+            <p class="hp-note">Luck is the schedule luck index: actual wins divided by the wins the weekly score ranks predict (all-play), times 100. 100 is the league average; above 100 the schedule helped, below it hurt. FP+ is starters' points divided by their projected points, times 100 (100 = right on projection). Eff. is starters' points divided by what the best available lineup would have scored, counting only bench players who beat a same-position starter. Both are the Game Log's per-game measures pooled over the regular season, and skip weeks with no projection or roster on file.</p>
         </div>
         <div class="hp-grid hp-two hp-eq">
         <div class="hp-panel hp-h2h">
